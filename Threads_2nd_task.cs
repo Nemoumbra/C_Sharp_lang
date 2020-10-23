@@ -9,39 +9,32 @@ namespace Threads
     class Program
     {
         static object lock1 = new object();
-        static public void windmill() 
+        class Spinner
         {
-            int k = Convert.ToInt32(Thread.CurrentThread.Name) / 4;
-            int X = Console.CursorLeft;
-            int Y = Console.CursorTop;
-            while (true) 
-             {
-                lock (lock1)
+            public int X, Y, frequency;
+            public string frames;
+            public char current_frame;
+            public Spinner(int Xcoord, int Ycoord, string animation, int delta_time)
+            {
+                X = Xcoord; Y = Ycoord;
+                frames = animation;
+                frequency = delta_time;
+            }
+            public void spin()
+            {
+                int counter = 0;
+                while (true)
                 {
-                     Console.SetCursorPosition(X, Y);
-                     Console.Write("\\");
+                    current_frame = frames[counter];
+                    lock (lock1)
+                    {
+                        Console.SetCursorPosition(X, Y);
+                        Console.Write(current_frame);
+                    }
+                    counter = (counter + 1) % frames.Length;
+                    Thread.Sleep(frequency);
                 }
-                Thread.Sleep(k);
-                lock (lock1)
-                {
-                    Console.SetCursorPosition(X, Y);
-                    Console.Write("|");
-                }
-                Thread.Sleep(k);
-                lock (lock1)
-                {
-                    Console.SetCursorPosition(X, Y);
-                    Console.Write("/");
-                }
-                Thread.Sleep(k);
-                lock (lock1)
-                {
-                    Console.SetCursorPosition(X, Y);
-                    Console.Write("–");
-                }
-                Thread.Sleep(k);
-             }
-        }
+            }
         static public void wheel()
         {
             int k = Convert.ToInt32(Thread.CurrentThread.Name) / 4;
@@ -142,17 +135,12 @@ namespace Threads
         }
         static void Main(string[] args)
         {
-            /*Thread windmill1 = new Thread(windmill);
-            windmill1.Name = "1000";
-            windmill1.Start();
-            Console.SetCursorPosition(20, 30);
-            Thread windmill2 = new Thread(windmill);
-            windmill2.Name = "600";
-            windmill2.Start();
-            Thread windmill3 = new Thread(windmill);
-            windmill3.Name = "400";
-            Console.SetCursorPosition(15, 15);
-            windmill3.Start();*/
+            /*Spinner data_windwill_1 = new Spinner(3, 10, "\\|/-", 250);
+            Thread windwill_1 = new Thread(data_windwill_1.spin);
+            windwill_1.Start();
+            Spinner data_weird_windmill = new Spinner(20, 20, "\\|/-/|\\-", 200);
+            Thread weird_windmill = new Thread(data_weird_windmill.spin);
+            weird_windmill.Start();*/
             Console.SetWindowSize(Console.WindowWidth + 1 - 4*7, Console.WindowHeight);
             Thread tumbleweed = new Thread(wheel);
             tumbleweed.Name = "800";
