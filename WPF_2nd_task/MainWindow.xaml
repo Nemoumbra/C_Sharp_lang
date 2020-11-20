@@ -1,0 +1,23 @@
+﻿<Window x:Class="WPF_tasks.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBox Height="315" HorizontalAlignment="Left" Margin="500,65,0,0" Name="textBox1" VerticalAlignment="Top" Width="236" />
+        <Label Content="Ваш заказ" Height="28" HorizontalAlignment="Left" Margin="500,30,0,0" Name="label1" VerticalAlignment="Top" />
+        <Button Content="Заказать" Height="69" HorizontalAlignment="Left" Margin="72,305,0,0" Name="button1" VerticalAlignment="Top" Width="147" IsEnabled="False" Click="button1_Click" />
+        <RadioButton Content="Большая пицца" Height="16" HorizontalAlignment="Left" Margin="72,150,0,0" Name="radioButton1" VerticalAlignment="Top" GroupName="pizzas" Checked="radioButton1_Checked" />
+        <RadioButton Content="Средняя пицца" Height="16" HorizontalAlignment="Left" Margin="72,172,0,0" Name="radioButton2" VerticalAlignment="Top" GroupName="pizzas" Checked="radioButton2_Checked" />
+        <RadioButton Content="Маленькая пицца" Height="16" HorizontalAlignment="Left" Margin="72,194,0,0" Name="radioButton3" VerticalAlignment="Top" GroupName="pizzas" Checked="radioButton3_Checked" />
+        <CheckBox Content="Грибы" Height="16" HorizontalAlignment="Left" Margin="283,65,0,0" Name="checkBox1" VerticalAlignment="Top" />
+        <CheckBox Content="Ветчина" Height="16" HorizontalAlignment="Left" Margin="283,98,0,0" Name="checkBox2" VerticalAlignment="Top" />
+        <CheckBox Content="Сыр" Height="16" HorizontalAlignment="Left" Margin="283,164,0,0" Name="checkBox3" VerticalAlignment="Top" />
+        <CheckBox Content="Спаржа" Height="16" HorizontalAlignment="Left" Margin="283,194,0,0" Name="checkBox4" VerticalAlignment="Top" />
+        <CheckBox Content="Томаты" Height="16" HorizontalAlignment="Left" Margin="283,131,0,0" Name="checkBox5" VerticalAlignment="Top" />
+        <CheckBox Content="Руккола" Height="16" HorizontalAlignment="Left" Margin="283,227,0,0" Name="checkBox6" VerticalAlignment="Top" />
+        <CheckBox Content="Ананасы" Height="16" HorizontalAlignment="Left" Margin="283,260,0,0" Name="checkBox7" VerticalAlignment="Top" />
+        <CheckBox Content="Соус bbq" Height="16" HorizontalAlignment="Left" Margin="283,293,0,0" Name="checkBox8" VerticalAlignment="Top" />
+        <CheckBox Content="Перец чили" Height="16" HorizontalAlignment="Left" Margin="283,323,0,0" Name="checkBox9" VerticalAlignment="Top" />
+        <CheckBox Content="Пепперони" Height="16" HorizontalAlignment="Left" Margin="283,358,0,0" Name="checkBox10" VerticalAlignment="Top" />
+    </Grid>
+</Window>
