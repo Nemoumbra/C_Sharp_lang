@@ -15,13 +15,13 @@
         <RadioButton Content="35-50" Height="16" HorizontalAlignment="Left" Margin="51,238,0,0" Name="Before50_Radiobutton" VerticalAlignment="Top" GroupName="Age" Checked="Before50_Radiobutton_Checked" />
         <RadioButton Content="50+" Height="16" HorizontalAlignment="Left" Margin="149,238,0,0" Name="After50_Radiobutton" VerticalAlignment="Top" GroupName="Age" Checked="After50_Radiobutton_Checked" />
         <TextBox Height="35" HorizontalAlignment="Left" Margin="51,333,0,0" Name="name_textbox" VerticalAlignment="Top" Width="175" TextChanged="name_textbox_TextChanged" />
-        <CheckBox Content="Спорт" Height="16" HorizontalAlignment="Left" Margin="326,101,0,0" Name="Sports_Checkbox" VerticalAlignment="Top" Checked="Sports_Checkbox_Checked" />
-        <CheckBox Content="Кино" Height="16" HorizontalAlignment="Left" Margin="326,123,0,0" Name="Cinema_Checkbox" VerticalAlignment="Top" Checked="Cinema_Checkbox_Checked" />
-        <CheckBox Content="Музыка" Height="16" HorizontalAlignment="Left" Margin="326,145,0,0" Name="Music_Checkbox" VerticalAlignment="Top" Checked="Music_Checkbox_Checked" />
-        <CheckBox Content="Кулинария" Height="16" HorizontalAlignment="Left" Margin="326,167,0,0" Name="Cooking_Checkbox" VerticalAlignment="Top" Checked="Cooking_Checkbox_Checked" />
-        <CheckBox Content="Наука" Height="16" HorizontalAlignment="Left" Margin="326,189,0,0" Name="Science_Checkbox" VerticalAlignment="Top"  />
-        <Image Height="109" HorizontalAlignment="Left" Margin="428,238,0,0" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="122" />
-        <CheckBox Content="Показать картинку" Height="16" HorizontalAlignment="Left" Margin="428,369,0,0" Name="Show_image_Checkbox" VerticalAlignment="Top" />
-        <Label Height="69" HorizontalAlignment="Left" Margin="507,101,0,0" Name="UserBioLabel" VerticalAlignment="Top" Width="193" />
+        <CheckBox Content="Спорт" Height="16" HorizontalAlignment="Left" Margin="326,101,0,0" Name="Sports_Checkbox" VerticalAlignment="Top" Checked="Sports_Checkbox_Checked" Unchecked="Sports_Checkbox_Unchecked" />
+        <CheckBox Content="Кино" Height="16" HorizontalAlignment="Left" Margin="326,123,0,0" Name="Cinema_Checkbox" VerticalAlignment="Top" Checked="Cinema_Checkbox_Checked" Unchecked="Cinema_Checkbox_Unchecked" />
+        <CheckBox Content="Музыка" Height="16" HorizontalAlignment="Left" Margin="326,145,0,0" Name="Music_Checkbox" VerticalAlignment="Top" Checked="Music_Checkbox_Checked" Unchecked="Music_Checkbox_Unchecked" />
+        <CheckBox Content="Кулинария" Height="16" HorizontalAlignment="Left" Margin="326,167,0,0" Name="Cooking_Checkbox" VerticalAlignment="Top" Checked="Cooking_Checkbox_Checked" Unchecked="Cooking_Checkbox_Unchecked" />
+        <CheckBox Content="Наука" Height="16" HorizontalAlignment="Left" Margin="326,189,0,0" Name="Science_Checkbox" VerticalAlignment="Top" Unchecked="Science_Checkbox_Unchecked" Checked="Science_Checkbox_Checked_1" />
+        <Image Height="109" HorizontalAlignment="Left" Margin="428,238,0,0" Name="The_image" Stretch="Fill" VerticalAlignment="Top" Width="122" Source="/WPF_tasks;component/Images/Vk_title_photo.jpg" />
+        <CheckBox Content="Показать картинку" Height="16" HorizontalAlignment="Left" Margin="428,369,0,0" Name="Show_image_Checkbox" VerticalAlignment="Top" Checked="Show_image_Checkbox_Checked" Unchecked="Show_image_Checkbox_Unchecked" />
+        <Label Height="82" HorizontalAlignment="Left" Margin="507,101,0,0" Name="UserBioLabel" VerticalAlignment="Top" Width="193" />
     </Grid>
 </Window>
