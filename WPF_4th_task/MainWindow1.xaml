@@ -1,0 +1,40 @@
+<Window x:Class="WPF_tasks.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="450" Width="728">
+    <Grid  Name="grid1">
+        <ListBox Height="141" HorizontalAlignment="Left" Margin="61,97,0,0" Name="what_listBox" VerticalAlignment="Top" Width="120">
+            <ListBoxItem Content="Лелеющий" />
+            <ListBoxItem Content="Рождественский" />
+            <ListBoxItem Content="Неправославный" />
+            <ListBoxItem Content="Сычностный" />
+        </ListBox>
+        <ListBox Height="141" HorizontalAlignment="Left" Margin="221,97,0,0" Name="who_listBox" VerticalAlignment="Top" Width="120">
+            <ListBoxItem Content="Альфарид онли" />
+            <ListBoxItem Content="(Who?)" />
+            <ListBoxItem Content="Екатерина" />
+        </ListBox>
+        <ListBox Height="141" HorizontalAlignment="Left" Margin="545,97,0,0" Name="place_listBox" VerticalAlignment="Top" Width="120">
+            <ListBoxItem Content="предмете" />
+            <ListBoxItem Content="условии" />
+            <ListBoxItem Content="коде" />
+            <ListBoxItem Content="мире" />
+            <ListBoxItem Content="ИТФМ" />
+        </ListBox>
+        <ListBox Height="141" HorizontalAlignment="Left" Margin="383,97,0,0" Name="in_what_listBox" VerticalAlignment="Top" Width="120">
+            <ListBoxItem Content="в зимнем" />
+            <ListBoxItem Content="в дверном" />
+            <ListBoxItem Content="в сломанном" />
+        </ListBox>
+        <TextBox Height="36" HorizontalAlignment="Left" Margin="61,32,0,0" Name="what_textBox" VerticalAlignment="Top" Width="120" />
+        <TextBox Height="36" HorizontalAlignment="Left" Margin="221,32,0,0" Name="who_textBox" VerticalAlignment="Top" Width="120" />
+        <TextBox Height="36" HorizontalAlignment="Left" Margin="383,32,0,0" Name="in_what_textBox" VerticalAlignment="Top" Width="120" />
+        <TextBox Height="36" HorizontalAlignment="Left" Margin="545,32,0,0" Name="place_textBox" VerticalAlignment="Top" Width="120" />
+        <Button Content="+" Height="25" HorizontalAlignment="Left" Margin="61,257,0,0" Name="what_button" VerticalAlignment="Top" Width="25" Click="what_button_Click" />
+        <Button Content="+" Height="25" HorizontalAlignment="Left" Margin="221,257,0,0" Name="who_button" VerticalAlignment="Top" Width="25" Click="who_button_Click" />
+        <Button Content="+" Height="25" HorizontalAlignment="Left" Margin="383,257,0,0" Name="in_what_button" VerticalAlignment="Top" Width="25" Click="in_what_button_Click" />
+        <Button Content="+" Height="25" HorizontalAlignment="Left" Margin="545,257,0,0" Name="place_button" VerticalAlignment="Top" Width="25" Click="place_button_Click" />
+        <TextBox Height="40" HorizontalAlignment="Left" Margin="162,320,0,0" Name="word_textBox" VerticalAlignment="Top" Width="156" />
+        <Button Content="Генерация" Height="40" HorizontalAlignment="Left" Margin="397,320,0,0" Name="generate_button" VerticalAlignment="Top" Width="156" Click="generate_button_Click" />
+    </Grid>
+</Window>
