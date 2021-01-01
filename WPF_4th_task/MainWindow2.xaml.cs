@@ -19,500 +19,382 @@ namespace WPF_tasks
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        bool active, is_writing, is_folder, is_settings;
+        bool activated, settings, folders, writing;
+        Button retro_example, hype_example, default_example;
         Color current_bg_color;
-        System.Windows.Media.LinearGradientBrush default_bg;
+        //SolidColorBrush hype_brush, retro_brush;
+        //System.Windows.Media.LinearGradientBrush default_button_style;
+        public void hide(UIElement thing) 
+        {
+            thing.Visibility = Visibility.Hidden;
+        }
+        public void show(UIElement thing) 
+        {
+            thing.Visibility = Visibility.Visible;
+        }
+        public void close_settings() 
+        {
+            hide(settings_Label);
+            hide(settings_Rectangle);
+            hide(background_Checkbox);
+            hide(button_style_Checkbox);
+            hide(bg_color_Radiobutton);
+            hide(bg_gray_Radiobutton);
+            hide(bg_khaki_Radiobutton);
+            hide(bg_photo_Radiobutton);
+            hide(bg_pic1_Radiobutton);
+            hide(bg_pic2_Radiobutton);
+            hide(hype_Radiobutton);
+            hide(retro_Radiobutton);
+            hide(stump_Radiobutton);
+            hide(save_settings_Button);
+            hide(reset_settings_Button);
+            settings = false;
+        }
+        public void open_settings() 
+        {
+            show(settings_Label);
+            show(settings_Rectangle);
+            show(background_Checkbox);
+            show(button_style_Checkbox);
+            show(bg_color_Radiobutton);
+            show(bg_gray_Radiobutton);
+            show(bg_khaki_Radiobutton);
+            show(bg_photo_Radiobutton);
+            show(bg_pic1_Radiobutton);
+            show(bg_pic2_Radiobutton);
+            show(hype_Radiobutton);
+            show(retro_Radiobutton);
+            show(stump_Radiobutton);
+            show(save_settings_Button);
+            show(reset_settings_Button);
+            settings = true;
+        }
+        public void close_writing()
+        {
+            hide(input_field_Textbox);
+            hide(save_work_Button);
+            hide(send_work_Button);
+            hide(maths_Radiobutton);
+            hide(russian_Radiobutton);
+            writing = false;
+        }
+        public void open_writing()
+        {
+            show(input_field_Textbox);
+            show(save_work_Button);
+            show(send_work_Button);
+            show(maths_Radiobutton);
+            show(russian_Radiobutton);
+            writing = true;
+        }
+        public void close_folders()
+        {
+            hide(saved_works_Tabcontrol);
+            folders = false;
+        }
+        public void open_folders()
+        {
+            show(saved_works_Tabcontrol);
+            folders = true;
+        }
+        public void deactivate()
+        {
+            if (settings) 
+            {
+                close_settings();
+            }
+            if (writing) 
+            {
+                close_writing();
+            }
+            if (folders) 
+            {
+                close_folders();
+            }
+            hide(settings_Button);
+            hide(folders_Button);
+            hide(writing_Button);
+            grid1.Background = new SolidColorBrush(Colors.Black);
+            activated = false;
+        }
+        public void activate() 
+        {
+            show(settings_Button);
+            show(folders_Button);
+            show(writing_Button);
+            grid1.Background = new SolidColorBrush(current_bg_color);
+            activated = true;
+        }
+        public void add_new_folder(string work_name) 
+        {
+            if (!input_field_Textbox.Text.Equals("")) 
+            {
+                TabItem new_folder = new TabItem();
+                new_folder.Header = work_name;
+                new_folder.Content = input_field_Textbox.Text;
+                saved_works_Tabcontrol.Items.Add(new_folder);
+            }
+        }
+        public void set_button_style(Button template) 
+        {
+            settings_Button.Background = template.Background;
+            folders_Button.Background = template.Background;
+            writing_Button.Background = template.Background;
+            on_off_Button.Background = template.Background;
+            save_work_Button.Background = template.Background;
+            send_work_Button.Background = template.Background;
+            save_settings_Button.Background = template.Background;
+            reset_settings_Button.Background = template.Background;
+
+            settings_Button.BorderBrush = template.BorderBrush;
+            folders_Button.BorderBrush = template.BorderBrush;
+            writing_Button.BorderBrush = template.BorderBrush;
+            on_off_Button.BorderBrush = template.BorderBrush;
+            save_work_Button.BorderBrush = template.BorderBrush;
+            send_work_Button.BorderBrush = template.BorderBrush;
+            save_settings_Button.BorderBrush = template.BorderBrush;
+            reset_settings_Button.BorderBrush = template.BorderBrush;
+
+            settings_Button.Foreground = template.Foreground;
+            folders_Button.Foreground = template.Foreground;
+            writing_Button.Foreground = template.Foreground;
+            on_off_Button.Foreground = template.Foreground;
+            save_work_Button.Foreground = template.Foreground;
+            send_work_Button.Foreground = template.Foreground;
+            save_settings_Button.Foreground = template.Foreground;
+            reset_settings_Button.Foreground = template.Foreground;
+        }
+        public void set_bg_color(Color cvet) 
+        {
+            grid1.Background = new SolidColorBrush(cvet);
+            current_bg_color = cvet;
+        }
         public MainWindow()
         {
             InitializeComponent();
-            active = true;
-            is_writing = false;
-            is_folder = false;
-            is_settings = false;
+            activated = true;
+            settings = false;
+            folders = false;
+            writing = false;
+            retro_example = new Button();
+            retro_example.Background = new SolidColorBrush(Color.FromRgb(0, 128, 255));
+            retro_example.BorderBrush = new SolidColorBrush(Colors.DarkOrange);
+            retro_example.Foreground = new SolidColorBrush(Colors.DarkOrange);
+            hype_example = new Button();
+            hype_example.Background = new SolidColorBrush(Colors.Black);
+            hype_example.BorderBrush = new SolidColorBrush(Colors.LimeGreen);
+            hype_example.Foreground = new SolidColorBrush(Colors.Magenta);
+            default_example = new Button();
+            default_example.Background = settings_Button.Background;
+            default_example.BorderBrush = new SolidColorBrush(Color.FromRgb(70, 70, 70));
+            default_example.Foreground = new SolidColorBrush(Colors.Black);
             current_bg_color = Colors.White;
-            default_bg = (System.Windows.Media.LinearGradientBrush) button1.Background;
         }
 
-        private void button3_Click(object sender, RoutedEventArgs e)
+        private void settings_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (active)
+            if (settings)
             {
-                active = false;
-                grid1.Background = new SolidColorBrush(Colors.Black);
-                button1.Visibility = Visibility.Hidden;
-                button2.Visibility = Visibility.Hidden;
-                button4.Visibility = Visibility.Hidden;
-                if (is_writing) 
+                close_settings();
+            }
+            else
+            {
+                if (writing)
                 {
-                    button5.Visibility = Visibility.Hidden;
-                    button6.Visibility = Visibility.Hidden;
-                    textBox1.Visibility = Visibility.Hidden;
-                    radioButton1.Visibility = Visibility.Hidden;
-                    radioButton2.Visibility = Visibility.Hidden;
-                    is_writing = false;
+                    close_writing();
                 }
-                if (is_folder) 
+                if (folders)
                 {
-                    tabControl1.Visibility = Visibility.Hidden;
-                    is_folder = false;
+                    close_folders();
                 }
-                if (is_settings) 
-                {
-                    is_settings = false;
-                    rectangle1.Visibility = Visibility.Hidden;
-                    desk_background_checkBox1.Visibility = Visibility.Hidden;
-                    picture_radioButton3.Visibility = Visibility.Hidden;
-                    pic1_radioButton4.Visibility = Visibility.Hidden;
-                    pic2_radioButton5.Visibility = Visibility.Hidden;
-                    color_radioButton6.Visibility = Visibility.Hidden;
-                    grey_radioButton7.Visibility = Visibility.Hidden;
-                    beige_radioButton8.Visibility = Visibility.Hidden;
-                    settings_label.Visibility = Visibility.Hidden;
-                    style_checkBox1.Visibility = Visibility.Hidden;
-                    hype_radioButton3.Visibility = Visibility.Hidden;
-                    retro_radioButton4.Visibility = Visibility.Hidden;
-                    stump_radioButton5.Visibility = Visibility.Hidden;
-                    button7.Visibility = Visibility.Hidden;
-                    button8.Visibility = Visibility.Hidden;
-                }
+                open_settings();
+            }
+        }
+
+        private void writing_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (writing)
+            {
+                close_writing();
             }
             else 
             {
-                active = true;
-                grid1.Background = new SolidColorBrush(current_bg_color);
-                button1.Visibility = Visibility.Visible;
-                button2.Visibility = Visibility.Visible;
-                button4.Visibility = Visibility.Visible;
+                if (settings) 
+                {
+                    close_settings();                   
+                }
+                if (folders) 
+                {
+                    close_folders();                    
+                }
+                open_writing();               
             }
-            
         }
 
-        private void button2_Click(object sender, RoutedEventArgs e)
+        private void folders_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (!is_writing)
+            if (folders)
             {
-                textBox1.Visibility = Visibility.Visible;
-                button5.Visibility = Visibility.Visible;
-                button6.Visibility = Visibility.Visible;
-                radioButton1.Visibility = Visibility.Visible;
-                radioButton2.Visibility = Visibility.Visible;
-                is_writing = true;
+                close_folders();                
+            }
+            else
+            {
+                if (settings)
+                {
+                    close_settings();                    
+                }
+                if (writing)
+                {
+                    close_writing();                    
+                }
+                open_folders();                
+            }
+        }
+
+        private void on_off_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (activated)
+            {
+                deactivate();                
             }
             else 
             {
-                textBox1.Visibility = Visibility.Hidden;
-                button5.Visibility = Visibility.Hidden;
-                button6.Visibility = Visibility.Hidden;
-                radioButton1.Visibility = Visibility.Hidden;
-                radioButton2.Visibility = Visibility.Hidden;
-                is_writing = false;
-            }
-            if (is_settings) 
-            {
-                is_settings = false;
-                rectangle1.Visibility = Visibility.Hidden;
-                desk_background_checkBox1.Visibility = Visibility.Hidden;
-                picture_radioButton3.Visibility = Visibility.Hidden;
-                pic1_radioButton4.Visibility = Visibility.Hidden;
-                pic2_radioButton5.Visibility = Visibility.Hidden;
-                color_radioButton6.Visibility = Visibility.Hidden;
-                grey_radioButton7.Visibility = Visibility.Hidden;
-                beige_radioButton8.Visibility = Visibility.Hidden;
-                settings_label.Visibility = Visibility.Hidden;
-                style_checkBox1.Visibility = Visibility.Hidden;
-                hype_radioButton3.Visibility = Visibility.Hidden;
-                retro_radioButton4.Visibility = Visibility.Hidden;
-                stump_radioButton5.Visibility = Visibility.Hidden;
-                button7.Visibility = Visibility.Hidden;
-                button8.Visibility = Visibility.Hidden;
-            }
-            if (is_folder) 
-            {
-                tabControl1.Visibility = Visibility.Hidden;
-                is_folder = false;
+                activate();                
             }
         }
 
-        private void button5_Click(object sender, RoutedEventArgs e)
+        private void save_work_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (!textBox1.Text.Equals(""))
+            if (maths_Radiobutton.IsChecked == true)
             {
-                TabItem new_tab = new TabItem();
-                if (radioButton2.IsChecked == true)
-                {
-                    new_tab.Header = "Русский язык";
-                }
-                else 
-                {
-                    new_tab.Header = "Математика";
-                }
-                new_tab.Content = textBox1.Text;
-                tabControl1.Items.Add(new_tab);
-
-                textBox1.Text = "";
-                is_writing = false;
-                button5.Visibility = Visibility.Hidden;
-                button6.Visibility = Visibility.Hidden;
-                textBox1.Visibility = Visibility.Hidden;
-                radioButton1.Visibility = Visibility.Hidden;
-                radioButton2.Visibility = Visibility.Hidden;
-            }
-        }
-
-        private void button6_Click(object sender, RoutedEventArgs e)
-        {
-            if (!textBox1.Text.Equals("")) 
-            {
-                textBox1.Text = "";
-                is_writing = false;
-                button5.Visibility = Visibility.Hidden;
-                button6.Visibility = Visibility.Hidden;
-                textBox1.Visibility = Visibility.Hidden;
-                radioButton1.Visibility = Visibility.Hidden;
-                radioButton2.Visibility = Visibility.Hidden;
-            }
-        }
-private void button4_Click(object sender, RoutedEventArgs e)
-        {
-            if (!is_folder)
-            {
-                if (is_writing)
-                {
-                    textBox1.Visibility = Visibility.Hidden;
-                    button5.Visibility = Visibility.Hidden;
-                    button6.Visibility = Visibility.Hidden;
-                    radioButton1.Visibility = Visibility.Hidden;
-                    radioButton2.Visibility = Visibility.Hidden;
-                    is_writing = false;
-                }
-                if (is_settings)
-                {
-                    is_settings = false;
-                    rectangle1.Visibility = Visibility.Hidden;
-                    desk_background_checkBox1.Visibility = Visibility.Hidden;
-                    picture_radioButton3.Visibility = Visibility.Hidden;
-                    pic1_radioButton4.Visibility = Visibility.Hidden;
-                    pic2_radioButton5.Visibility = Visibility.Hidden;
-                    color_radioButton6.Visibility = Visibility.Hidden;
-                    grey_radioButton7.Visibility = Visibility.Hidden;
-                    beige_radioButton8.Visibility = Visibility.Hidden;
-                    settings_label.Visibility = Visibility.Hidden;
-                    style_checkBox1.Visibility = Visibility.Hidden;
-                    hype_radioButton3.Visibility = Visibility.Hidden;
-                    retro_radioButton4.Visibility = Visibility.Hidden;
-                    stump_radioButton5.Visibility = Visibility.Hidden;
-                    button7.Visibility = Visibility.Hidden;
-                    button8.Visibility = Visibility.Hidden;
-                }
-                is_folder = true;
-                tabControl1.Visibility = Visibility.Visible;
+                add_new_folder("Математика");
             }
             else 
             {
-                tabControl1.Visibility = Visibility.Hidden;
-                is_folder = false;
+                add_new_folder("Русский язык");
             }
+            input_field_Textbox.Text = "";
+            close_writing();            
         }
 
-        private void desk_background_checkBox1_Checked(object sender, RoutedEventArgs e)
+        private void send_work_Button_Click(object sender, RoutedEventArgs e)
         {
-            picture_radioButton3.IsEnabled = true;
-            color_radioButton6.IsEnabled = true;
+            input_field_Textbox.Text = "";
+            close_writing();            
         }
 
-        private void desk_background_checkBox1_Unchecked(object sender, RoutedEventArgs e)
+        private void background_Checkbox_Checked(object sender, RoutedEventArgs e)
         {
-            picture_radioButton3.IsEnabled = false;
-            color_radioButton6.IsEnabled = false;
-            pic1_radioButton4.IsEnabled = false;
-            pic2_radioButton5.IsEnabled = false;
-            grey_radioButton7.IsEnabled = false;
-            beige_radioButton8.IsEnabled = false;
-
-            picture_radioButton3.IsChecked = false;
-            color_radioButton6.IsChecked = false;
-            pic1_radioButton4.IsChecked = false;
-            pic2_radioButton5.IsChecked = false;
-            grey_radioButton7.IsChecked = false;
-            beige_radioButton8.IsChecked = false;
+            bg_color_Radiobutton.IsEnabled = true;
+            bg_photo_Radiobutton.IsEnabled = true;
         }
 
-        private void picture_radioButton3_Checked(object sender, RoutedEventArgs e)
+        private void background_Checkbox_Unchecked(object sender, RoutedEventArgs e)
         {
-            pic1_radioButton4.IsEnabled = true;
-            pic2_radioButton5.IsEnabled = true;
-            grey_radioButton7.IsChecked = false;
-            beige_radioButton8.IsChecked = false;
+            bg_color_Radiobutton.IsEnabled = false;
+            bg_photo_Radiobutton.IsEnabled = false;
+
+            bg_color_Radiobutton.IsChecked = false;
+            bg_photo_Radiobutton.IsChecked = false;
         }
 
-        private void picture_radioButton3_Unchecked(object sender, RoutedEventArgs e)
+        private void bg_photo_Radiobutton_Checked(object sender, RoutedEventArgs e)
         {
-            pic1_radioButton4.IsEnabled = false;
-            pic2_radioButton5.IsEnabled = false;
+            bg_pic1_Radiobutton.IsEnabled = true;
+            bg_pic2_Radiobutton.IsEnabled = true;
+
         }
 
-        private void color_radioButton6_Checked(object sender, RoutedEventArgs e)
+        private void bg_photo_Radiobutton_Unchecked(object sender, RoutedEventArgs e)
         {
-            grey_radioButton7.IsEnabled = true;
-            beige_radioButton8.IsEnabled = true;
-            pic1_radioButton4.IsChecked = false;
-            pic2_radioButton5.IsChecked = false;
+            bg_pic1_Radiobutton.IsEnabled = false;
+            bg_pic2_Radiobutton.IsEnabled = false;
+            bg_pic1_Radiobutton.IsChecked = false;
+            bg_pic2_Radiobutton.IsChecked = false;
         }
 
-        private void color_radioButton6_Unchecked(object sender, RoutedEventArgs e)
+        private void bg_color_Radiobutton_Checked(object sender, RoutedEventArgs e)
         {
-            grey_radioButton7.IsEnabled = false;
-            beige_radioButton8.IsEnabled = false;
+            bg_gray_Radiobutton.IsEnabled = true;
+            bg_khaki_Radiobutton.IsEnabled = true;
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void bg_color_Radiobutton_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (!is_settings)
+            bg_gray_Radiobutton.IsEnabled = false;
+            bg_khaki_Radiobutton.IsEnabled = false;
+            bg_gray_Radiobutton.IsChecked = false;
+            bg_khaki_Radiobutton.IsChecked = false;
+        }
+
+        private void button_style_Checkbox_Checked(object sender, RoutedEventArgs e)
+        {
+            hype_Radiobutton.IsEnabled = true;
+            retro_Radiobutton.IsEnabled = true;
+            stump_Radiobutton.IsEnabled = true;
+        }
+
+        private void button_style_Checkbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            hype_Radiobutton.IsEnabled = false;
+            retro_Radiobutton.IsEnabled = false;
+            stump_Radiobutton.IsEnabled = false;
+            hype_Radiobutton.IsChecked = false;
+            retro_Radiobutton.IsChecked = false;
+            stump_Radiobutton.IsChecked = false;
+        }
+
+        private void reset_settings_Button_Click(object sender, RoutedEventArgs e)
+        {
+            background_Checkbox.IsChecked = false;
+            button_style_Checkbox.IsChecked = false;
+        }
+        private void save_settings_Button_Click(object sender, RoutedEventArgs e)
+        {
+            bool has_to_close = !((background_Checkbox.IsChecked == true && bg_gray_Radiobutton.IsChecked == false && bg_khaki_Radiobutton.IsChecked == false && bg_pic1_Radiobutton.IsChecked == false && bg_pic2_Radiobutton.IsChecked == false) || (button_style_Checkbox.IsChecked == true && hype_Radiobutton.IsChecked == false && retro_Radiobutton.IsChecked == false && stump_Radiobutton.IsChecked == false));
+            if (has_to_close)
             {
-                is_settings = true;
-                rectangle1.Visibility = Visibility.Visible;
-                desk_background_checkBox1.Visibility = Visibility.Visible;
-                picture_radioButton3.Visibility = Visibility.Visible;
-                pic1_radioButton4.Visibility = Visibility.Visible;
-                pic2_radioButton5.Visibility = Visibility.Visible;
-                color_radioButton6.Visibility = Visibility.Visible;
-                grey_radioButton7.Visibility = Visibility.Visible;
-                beige_radioButton8.Visibility = Visibility.Visible;
-                settings_label.Visibility = Visibility.Visible;
-                style_checkBox1.Visibility = Visibility.Visible;
-                hype_radioButton3.Visibility = Visibility.Visible;
-                retro_radioButton4.Visibility = Visibility.Visible;
-                stump_radioButton5.Visibility = Visibility.Visible;
-                button7.Visibility = Visibility.Visible;
-                button8.Visibility = Visibility.Visible;
-            }
-            else 
-            {
-                is_settings = false;
-                rectangle1.Visibility = Visibility.Hidden;
-                desk_background_checkBox1.Visibility = Visibility.Hidden;
-                picture_radioButton3.Visibility = Visibility.Hidden;
-                pic1_radioButton4.Visibility = Visibility.Hidden;
-                pic2_radioButton5.Visibility = Visibility.Hidden;
-                color_radioButton6.Visibility = Visibility.Hidden;
-                grey_radioButton7.Visibility = Visibility.Hidden;
-                beige_radioButton8.Visibility = Visibility.Hidden;
-                settings_label.Visibility = Visibility.Hidden;
-                style_checkBox1.Visibility = Visibility.Hidden;
-                hype_radioButton3.Visibility = Visibility.Hidden;
-                retro_radioButton4.Visibility = Visibility.Hidden;
-                stump_radioButton5.Visibility = Visibility.Hidden;
-                button7.Visibility = Visibility.Hidden;
-                button8.Visibility = Visibility.Hidden;
-            }
-            if (is_writing)
-            {
-                textBox1.Visibility = Visibility.Hidden;
-                button5.Visibility = Visibility.Hidden;
-                button6.Visibility = Visibility.Hidden;
-                radioButton1.Visibility = Visibility.Hidden;
-                radioButton2.Visibility = Visibility.Hidden;
-                is_writing = false;
-            }
-            if (is_folder)
-            {
-                tabControl1.Visibility = Visibility.Hidden;
-                is_folder = false;
-            }
-        }
-private void button7_Click(object sender, RoutedEventArgs e)
-        {
-            bool must_close = !(desk_background_checkBox1.IsChecked == true && grey_radioButton7.IsChecked == false && beige_radioButton8.IsChecked == false) && !(style_checkBox1.IsChecked == true && retro_radioButton4.IsChecked == false && hype_radioButton3.IsChecked == false && stump_radioButton5.IsChecked == false);
-            if (must_close)
-            {
-                if (desk_background_checkBox1.IsChecked == false)
+                if (background_Checkbox.IsChecked == false)
                 {
-                    current_bg_color = Colors.White;
-                    SolidColorBrush new_color = new SolidColorBrush(current_bg_color);
-                    grid1.Background = new_color;
+                    set_bg_color(Colors.White);
                 }
-                if (grey_radioButton7.IsChecked == true)
+                if (bg_gray_Radiobutton.IsChecked == true)
                 {
-                    SolidColorBrush new_color = new SolidColorBrush(Colors.LightGray);
-                    grid1.Background = new_color;
-                    current_bg_color = Colors.LightGray;
+                    set_bg_color(Colors.LightGray);
                 }
-                if (beige_radioButton8.IsChecked == true)
+                if (bg_khaki_Radiobutton.IsChecked == true)
                 {
-                    SolidColorBrush new_color = new SolidColorBrush(Colors.Khaki);
-                    grid1.Background = new_color;
-                    current_bg_color = Colors.Khaki;
+                    set_bg_color(Colors.Khaki);
                 }
                 /*
-                if (pic1_radioButton4.IsChecked == true) 
+                if (bg_pic1_Radiobutton.IsChecked == true) 
                 {
-                    Image new_background = new Image();
-                    new_background.Source = "/WpfApplication1;component/Images/Vk_title_photo.jpg";
+
                 }
-                if (pic2_radioButton5.IsChecked == true) 
+                if (bg_pic2_Radiobutton.IsChecked == true) 
                 {
-                    Image new_background = new Image();
-                    new_background.Source = "/WpfApplication1;component/Images/Zhozh.jpg";
+
+                }*/
+                if (button_style_Checkbox.IsChecked == false)
+                {
+                    set_button_style(default_example);
                 }
-                */
-                if (style_checkBox1.IsChecked == false) 
+                if (hype_Radiobutton.IsChecked == true)
                 {
-                    button1.Background = default_bg;
-                    button2.Background = default_bg;
-                    button3.Background = default_bg;
-                    button4.Background = default_bg;
-                    button5.Background = default_bg;
-                    button6.Background = default_bg;
-                    button7.Background = default_bg;
-                    button8.Background = default_bg;
-                    SolidColorBrush fg_color = new SolidColorBrush(Colors.Black);
-                    button1.Foreground = fg_color;
-                    button2.Foreground = fg_color;
-                    button3.Foreground = fg_color;
-                    button4.Foreground = fg_color;
-                    button5.Foreground = fg_color;
-                    button6.Foreground = fg_color;
-                    button7.Foreground = fg_color;
-                    button8.Foreground = fg_color;
-                    SolidColorBrush border_color = new SolidColorBrush(Color.FromRgb(70, 70, 70));
-                    button1.BorderBrush = border_color;
-                    button2.BorderBrush = border_color;
-                    button3.BorderBrush = border_color;
-                    button4.BorderBrush = border_color;
-                    button5.BorderBrush = border_color;
-                    button6.BorderBrush = border_color;
-                    button7.BorderBrush = border_color;
-                    button8.BorderBrush = border_color;
+                    set_button_style(hype_example);
                 }
-                if (hype_radioButton3.IsChecked == true) 
+                if (retro_Radiobutton.IsChecked == true)
                 {
-                    SolidColorBrush bg_color = new SolidColorBrush(Colors.Black);
-                    button1.Background = bg_color;
-                    button2.Background = bg_color;
-                    button3.Background = bg_color;
-                    button4.Background = bg_color;
-                    button5.Background = bg_color;
-                    button6.Background = bg_color;
-                    button7.Background = bg_color;
-                    button8.Background = bg_color;
-                    SolidColorBrush fg_color = new SolidColorBrush(Colors.Magenta);
-                    button1.Foreground = fg_color;
-                    button2.Foreground = fg_color;
-                    button3.Foreground = fg_color;
-                    button4.Foreground = fg_color;
-                    button5.Foreground = fg_color;
-                    button6.Foreground = fg_color;
-                    button7.Foreground = fg_color;
-                    button8.Foreground = fg_color;
-                    SolidColorBrush border_color = new SolidColorBrush(Colors.LimeGreen);
-                    button1.BorderBrush = border_color;
-                    button2.BorderBrush = border_color;
-                    button3.BorderBrush = border_color;
-                    button4.BorderBrush = border_color;
-                    button5.BorderBrush = border_color;
-                    button6.BorderBrush = border_color;
-                    button7.BorderBrush = border_color;
-                    button8.BorderBrush = border_color;
-                }
-                if (retro_radioButton4.IsChecked == true) 
-                {
-                    SolidColorBrush bg_color = new SolidColorBrush(Color.FromRgb(0, 128, 255));
-                    button1.Background = bg_color;
-                    button2.Background = bg_color;
-                    button3.Background = bg_color;
-                    button4.Background = bg_color;
-                    button5.Background = bg_color;
-                    button6.Background = bg_color;
-                    button7.Background = bg_color;
-                    button8.Background = bg_color;
-                    SolidColorBrush fg_color = new SolidColorBrush(Colors.DarkOrange);
-                    button1.Foreground = fg_color;
-                    button2.Foreground = fg_color;
-                    button3.Foreground = fg_color;
-                    button4.Foreground = fg_color;
-                    button5.Foreground = fg_color;
-                    button6.Foreground = fg_color;
-                    button7.Foreground = fg_color;
-                    button8.Foreground = fg_color;
-                    SolidColorBrush border_color = new SolidColorBrush(Colors.DarkOrange);
-                    button1.BorderBrush = border_color;
-                    button2.BorderBrush = border_color;
-                    button3.BorderBrush = border_color;
-                    button4.BorderBrush = border_color;
-                    button5.BorderBrush = border_color;
-                    button6.BorderBrush = border_color;
-                    button7.BorderBrush = border_color;
-                    button8.BorderBrush = border_color;
+                    set_button_style(retro_example);
                 }
 
-                is_settings = false;
-                rectangle1.Visibility = Visibility.Hidden;
-                desk_background_checkBox1.Visibility = Visibility.Hidden;
-                picture_radioButton3.Visibility = Visibility.Hidden;
-                pic1_radioButton4.Visibility = Visibility.Hidden;
-                pic2_radioButton5.Visibility = Visibility.Hidden;
-                color_radioButton6.Visibility = Visibility.Hidden;
-                grey_radioButton7.Visibility = Visibility.Hidden;
-                beige_radioButton8.Visibility = Visibility.Hidden;
-                settings_label.Visibility = Visibility.Hidden;
-                style_checkBox1.Visibility = Visibility.Hidden;
-                hype_radioButton3.Visibility = Visibility.Hidden;
-                retro_radioButton4.Visibility = Visibility.Hidden;
-                stump_radioButton5.Visibility = Visibility.Hidden;
-                button7.Visibility = Visibility.Hidden;
-                button8.Visibility = Visibility.Hidden;
+                close_settings();              
             }
-        }
-
-        private void button8_Click(object sender, RoutedEventArgs e)
-        {
-            desk_background_checkBox1.IsChecked = false;
-            style_checkBox1.IsChecked = false;
-            /*is_settings = false;
-            rectangle1.Visibility = Visibility.Hidden;
-            desk_background_checkBox1.Visibility = Visibility.Hidden;
-            picture_radioButton3.Visibility = Visibility.Hidden;
-            pic1_radioButton4.Visibility = Visibility.Hidden;
-            pic2_radioButton5.Visibility = Visibility.Hidden;
-            color_radioButton6.Visibility = Visibility.Hidden;
-            grey_radioButton7.Visibility = Visibility.Hidden;
-            beige_radioButton8.Visibility = Visibility.Hidden;
-            settings_label.Visibility = Visibility.Hidden;
-            style_checkBox1.Visibility = Visibility.Hidden;
-            hype_radioButton3.Visibility = Visibility.Hidden;
-            retro_radioButton4.Visibility = Visibility.Hidden;
-            stump_radioButton5.Visibility = Visibility.Hidden;
-            button7.Visibility = Visibility.Hidden;
-            button8.Visibility = Visibility.Hidden;*/
-        }
-
-        private void style_checkBox1_Checked(object sender, RoutedEventArgs e)
-        {
-            retro_radioButton4.IsEnabled = true;
-            hype_radioButton3.IsEnabled = true;
-            stump_radioButton5.IsEnabled = true;
-        }
-
-        private void style_checkBox1_Unchecked(object sender, RoutedEventArgs e)
-        {
-            retro_radioButton4.IsEnabled = false;
-            hype_radioButton3.IsEnabled = false;
-            stump_radioButton5.IsEnabled = false;
-
-            retro_radioButton4.IsChecked = false;
-            hype_radioButton3.IsChecked = false;
-            stump_radioButton5.IsChecked = false;
-        }
-
-        private void hype_radioButton3_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void retro_radioButton4_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
+            else 
+            {
+                MessageBox.Show("Некорректно введены данные!", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        } 
     }
 }
