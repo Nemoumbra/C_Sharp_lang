@@ -1,32 +1,32 @@
 ﻿<Window x:Class="WPF_tasks.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Бета-версия" Height="450" Width="728">
+        Title="Гамма-версия" Height="450" Width="728" ResizeMode="NoResize">
     <Grid  Name="grid1">
-        <Button Content="НАСТРОЙКИ" Height="66" HorizontalAlignment="Left" Margin="13,31,0,0" Name="button1" VerticalAlignment="Top" Width="127" Click="button1_Click" />
-        <Button Content="ПИСАТЬ" Height="66" HorizontalAlignment="Left" Margin="12,130,0,0" Name="button2" VerticalAlignment="Top" Width="128" Click="button2_Click" />
-        <Button Content="ВКЛ/ВЫКЛ" Height="66" HorizontalAlignment="Left" Margin="566,31,0,0" Name="button3" VerticalAlignment="Top" Width="128" Click="button3_Click" />
-        <Button Content="ПАПКИ" Height="66" HorizontalAlignment="Left" Margin="566,130,0,0" Name="button4" VerticalAlignment="Top" Width="128" Click="button4_Click" />
-        <TextBox Height="284" HorizontalAlignment="Left" Margin="186,31,0,0" Name="textBox1" VerticalAlignment="Top" Width="337" Visibility="Hidden" />
-        <Button Content="Сохранить" Height="30" HorizontalAlignment="Left" Margin="197,359,0,0" Name="button5" VerticalAlignment="Top" Width="134" Visibility="Hidden" Click="button5_Click" />
-        <Button Content="Отправить учителю" Height="30" HorizontalAlignment="Left" Margin="367,359,0,0" Name="button6" VerticalAlignment="Top" Width="145" Visibility="Hidden" Click="button6_Click" />
-        <RadioButton Height="16" HorizontalAlignment="Left" Margin="229,337,0,0" Name="radioButton1" VerticalAlignment="Top" Content="Математика" GroupName="Subjects" Visibility="Hidden" />
-        <RadioButton Content="Русский язык" Height="16" HorizontalAlignment="Left" Margin="379,337,0,0" Name="radioButton2" VerticalAlignment="Top" GroupName="Subjects" IsChecked="True" Visibility="Hidden" />
-        <TabControl Height="320" HorizontalAlignment="Left" Margin="148,39,0,0" Name="tabControl1" VerticalAlignment="Top" Width="411" Visibility="Hidden"></TabControl>
-        <Rectangle Height="308" HorizontalAlignment="Left" Margin="176,31,0,0" Name="rectangle1" Stroke="Brown" VerticalAlignment="Top" Width="344" Fill="#FFF8F8F8" Visibility="Hidden" />
-        <Label Content="НАСТРОЙКИ" Height="28" Name="settings_label" Width="109" Margin="293,46,303,337" Visibility="Hidden" />
-        <CheckBox Content="Фон парты" Height="16" Name="desk_background_checkBox1" Margin="206,90,424,305" Checked="desk_background_checkBox1_Checked" Unchecked="desk_background_checkBox1_Unchecked" Visibility="Hidden" />
-        <RadioButton Content="Картинка" Height="16" HorizontalAlignment="Left" Margin="224,118,0,0" Name="picture_radioButton3" VerticalAlignment="Top" GroupName="color_vs_picture" IsEnabled="False" Checked="picture_radioButton3_Checked" Unchecked="picture_radioButton3_Unchecked" Visibility="Hidden" />
-        <RadioButton Content="Картинка1" Height="16" HorizontalAlignment="Left" Margin="249,142,0,0" Name="pic1_radioButton4" VerticalAlignment="Top" GroupName="pictures" IsEnabled="False" Visibility="Hidden" />
-        <RadioButton Content="Картинка2" Height="16" HorizontalAlignment="Left" Margin="249,164,0,0" Name="pic2_radioButton5" VerticalAlignment="Top" GroupName="pictures" IsEnabled="False" Visibility="Hidden" />
-        <RadioButton Content="Цвет" Height="16" HorizontalAlignment="Left" Margin="224,186,0,0" Name="color_radioButton6" VerticalAlignment="Top" GroupName="color_vs_picture" IsEnabled="False" Checked="color_radioButton6_Checked" Unchecked="color_radioButton6_Unchecked" Visibility="Hidden" />
-        <RadioButton Content="Серый" Height="16" HorizontalAlignment="Left" Margin="249,208,0,0" Name="grey_radioButton7" VerticalAlignment="Top" GroupName="colors" IsEnabled="False" Visibility="Hidden" />
-        <RadioButton Content="Хаки" Height="16" HorizontalAlignment="Left" Margin="249,230,0,0" Name="beige_radioButton8" VerticalAlignment="Top" GroupName="colors" IsEnabled="False" Visibility="Hidden" />
-        <RadioButton Content="Хайп" Height="16" HorizontalAlignment="Left" Margin="402,140,0,0" Name="hype_radioButton3" VerticalAlignment="Top" GroupName="button_style" Visibility="Hidden" Checked="hype_radioButton3_Checked" IsEnabled="False" />
-        <RadioButton Content="Ретро" Height="16" HorizontalAlignment="Left" Margin="402,180,0,0" Name="retro_radioButton4" VerticalAlignment="Top" GroupName="button_style" Visibility="Hidden" Checked="retro_radioButton4_Checked" IsEnabled="False" />
-        <RadioButton Content="Заглушка" Height="16" HorizontalAlignment="Left" Margin="402,218,0,0" Name="stump_radioButton5" VerticalAlignment="Top" GroupName="button_style" Visibility="Hidden" IsEnabled="False" />
-        <Button Content="Сохранить" Height="53" HorizontalAlignment="Left" Margin="403,277,0,0" Name="button7" VerticalAlignment="Top" Width="104" Visibility="Hidden" Click="button7_Click" />
-        <Button Content=" Сбросить настройки" Height="38" Margin="186,292,0,0" Name="button8" VerticalAlignment="Top" HorizontalAlignment="Left" Width="129" Visibility="Hidden" Click="button8_Click" />
-        <CheckBox Content="Стиль кнопок" Height="16" HorizontalAlignment="Left" Margin="384,90,0,0" Name="style_checkBox1" VerticalAlignment="Top" Checked="style_checkBox1_Checked" Unchecked="style_checkBox1_Unchecked" Visibility="Hidden" />
+        <Button Content="НАСТРОЙКИ" Height="66" HorizontalAlignment="Left" Margin="13,31,0,0" Name="settings_Button" VerticalAlignment="Top" Width="127" Click="settings_Button_Click" />
+        <Button Content="ПИСАТЬ" Height="66" HorizontalAlignment="Left" Margin="12,130,0,0" Name="writing_Button" VerticalAlignment="Top" Width="128" Click="writing_Button_Click" />
+        <Button Content="ВКЛ/ВЫКЛ" Height="66" HorizontalAlignment="Left" Margin="566,31,0,0" Name="on_off_Button" VerticalAlignment="Top" Width="128" Click="on_off_Button_Click" />
+        <Button Content="ПАПКИ" Height="66" HorizontalAlignment="Left" Margin="566,130,0,0" Name="folders_Button" VerticalAlignment="Top" Width="128" Click="folders_Button_Click" />
+        <TextBox Height="284" HorizontalAlignment="Left" Margin="186,31,0,0" Name="input_field_Textbox" VerticalAlignment="Top" Width="337" Visibility="Hidden" />
+        <Button Content="Сохранить" Height="30" HorizontalAlignment="Left" Margin="197,359,0,0" Name="save_work_Button" VerticalAlignment="Top" Width="134" Visibility="Hidden" Click="save_work_Button_Click" />
+        <Button Content="Отправить учителю" Height="30" HorizontalAlignment="Left" Margin="367,359,0,0" Name="send_work_Button" VerticalAlignment="Top" Width="145" Visibility="Hidden" Click="send_work_Button_Click" />
+        <RadioButton Height="16" HorizontalAlignment="Left" Margin="229,337,0,0" Name="maths_Radiobutton" VerticalAlignment="Top" Content="Математика" GroupName="Subjects" Visibility="Hidden" />
+        <RadioButton Content="Русский язык" Height="16" HorizontalAlignment="Left" Margin="379,337,0,0" Name="russian_Radiobutton" VerticalAlignment="Top" GroupName="Subjects" IsChecked="True" Visibility="Hidden" />
+        <TabControl Height="320" HorizontalAlignment="Left" Margin="148,39,0,0" Name="saved_works_Tabcontrol" VerticalAlignment="Top" Width="411" Visibility="Hidden"></TabControl>
+        <Rectangle Height="308" HorizontalAlignment="Left" Margin="176,31,0,0" Name="settings_Rectangle" Stroke="Brown" VerticalAlignment="Top" Width="344" Fill="#FFF8F8F8" Visibility="Hidden" />
+        <Label Content="НАСТРОЙКИ" Height="28" Name="settings_Label" Width="109" Margin="293,46,303,337" Visibility="Hidden" />
+        <CheckBox Content="Фон парты" Height="16" Name="background_Checkbox" Margin="206,90,424,305"   Visibility="Hidden" Checked="background_Checkbox_Checked" Unchecked="background_Checkbox_Unchecked" />
+        <RadioButton Content="Картинка" Height="16" HorizontalAlignment="Left" Margin="224,118,0,0" Name="bg_photo_Radiobutton" VerticalAlignment="Top" GroupName="color_vs_picture" IsEnabled="False"  Visibility="Hidden" Checked="bg_photo_Radiobutton_Checked" Unchecked="bg_photo_Radiobutton_Unchecked" />
+        <RadioButton Content="Картинка1" Height="16" HorizontalAlignment="Left" Margin="249,142,0,0" Name="bg_pic1_Radiobutton" VerticalAlignment="Top" GroupName="pictures" IsEnabled="False" Visibility="Hidden" />
+        <RadioButton Content="Картинка2" Height="16" HorizontalAlignment="Left" Margin="249,164,0,0" Name="bg_pic2_Radiobutton" VerticalAlignment="Top" GroupName="pictures" IsEnabled="False" Visibility="Hidden" />
+        <RadioButton Content="Цвет" Height="16" HorizontalAlignment="Left" Margin="224,186,0,0" Name="bg_color_Radiobutton" VerticalAlignment="Top" GroupName="color_vs_picture" IsEnabled="False"  Visibility="Hidden" Checked="bg_color_Radiobutton_Checked" Unchecked="bg_color_Radiobutton_Unchecked" />
+        <RadioButton Content="Серый" Height="16" HorizontalAlignment="Left" Margin="249,208,0,0" Name="bg_gray_Radiobutton" VerticalAlignment="Top" GroupName="colors" IsEnabled="False" Visibility="Hidden" />
+        <RadioButton Content="Хаки" Height="16" HorizontalAlignment="Left" Margin="249,230,0,0" Name="bg_khaki_Radiobutton" VerticalAlignment="Top" GroupName="colors" IsEnabled="False" Visibility="Hidden" />
+        <RadioButton Content="Хайп" Height="16" HorizontalAlignment="Left" Margin="402,140,0,0" Name="hype_Radiobutton" VerticalAlignment="Top" GroupName="button_style" Visibility="Hidden"  IsEnabled="False" />
+        <RadioButton Content="Ретро" Height="16" HorizontalAlignment="Left" Margin="402,180,0,0" Name="retro_Radiobutton" VerticalAlignment="Top" GroupName="button_style" Visibility="Hidden"  IsEnabled="False" />
+        <RadioButton Content="Заглушка" Height="16" HorizontalAlignment="Left" Margin="402,218,0,0" Name="stump_Radiobutton" VerticalAlignment="Top" GroupName="button_style" Visibility="Hidden" IsEnabled="False" />
+        <Button Content="Сохранить" Height="53" HorizontalAlignment="Left" Margin="403,277,0,0" Name="save_settings_Button" VerticalAlignment="Top" Width="104" Visibility="Hidden" Click="save_settings_Button_Click" />
+        <Button Content=" Сбросить настройки" Height="38" Margin="186,292,0,0" Name="reset_settings_Button" VerticalAlignment="Top" HorizontalAlignment="Left" Width="129" Visibility="Hidden" Click="reset_settings_Button_Click" />
+        <CheckBox Content="Стиль кнопок" Height="16" HorizontalAlignment="Left" Margin="384,90,0,0" Name="button_style_Checkbox" VerticalAlignment="Top"   Visibility="Hidden" Checked="button_style_Checkbox_Checked" Unchecked="button_style_Checkbox_Unchecked" />
     </Grid>
 </Window>
