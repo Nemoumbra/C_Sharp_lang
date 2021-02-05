@@ -50,7 +50,7 @@ namespace Client
             do
             {
                 int bytes = stream.Read(data, 0, data.Length);
-                response += Encoding.UTF8.GetString(data, 0, data.Length);
+                response += Encoding.UTF8.GetString(data, 0, bytes);
             }
             while (stream.DataAvailable);
             Receiver_button.Text = response + "\n";
