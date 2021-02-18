@@ -1,10 +1,12 @@
 <Window x:Class="Client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" Name="window1">
     <Grid>
         <TextBox x:Name="Sender_button" HorizontalAlignment="Left" Height="105" Margin="84,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="608"/>
         <TextBox x:Name="Receiver_button" HorizontalAlignment="Left" Height="103" Margin="84,286,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="608"/>
-        <Button Content="Отправить текст" HorizontalAlignment="Left" Height="67" Margin="285,171,0,0" VerticalAlignment="Top" Width="252" Click="Button_Click"/>
+        <Button Content="Сыграть с сервером" HorizontalAlignment="Left" Height="67" Margin="285,171,0,0" VerticalAlignment="Top" Width="252" Click="Button_Click"/>
+        <Button Content="Убить сервер" Height="23" HorizontalAlignment="Left" Margin="114,192,0,0" Name="button1" VerticalAlignment="Top" Width="93" Click="button1_Click" />
+        <Button Content="Считать данные" Height="23" HorizontalAlignment="Left" Margin="114,242,0,0" Name="button2" VerticalAlignment="Top" Width="96" Click="button2_Click" />
     </Grid>
 </Window>
