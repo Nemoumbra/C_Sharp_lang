@@ -12,6 +12,10 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            Random rand = new Random();
+            int number = rand.Next(2000);
+            //number = 0;
+            //List<TcpClient> clients = new List<TcpClient>();
             TcpListener server = null;
             try
             {
@@ -26,8 +30,9 @@ namespace Server
                 Console.WriteLine(exept.Message);
                 Console.ReadKey();
             }
-            string message, response;
-
+            Console.WriteLine("Number = " + number.ToString());
+            string message, response = "";
+            
             while (true)
             {
                 message = "";
@@ -40,8 +45,35 @@ namespace Server
                     message += Encoding.UTF8.GetString(data, 0, bytes);
                 }
                 while (stream.DataAvailable);
-                Console.WriteLine("Message received: " + message);
-                response = "Message received: " + message;
+                Console.WriteLine("New connection! Message:\n" + message);
+
+                if (message.Equals("Let's play!"))
+                {
+                    //response = "0 " + number.ToString();
+                    response = "Make a guess!";
+                }
+                else 
+                {
+                    int guess;
+                    try
+                    {
+                        guess = Convert.ToInt32(message);
+                        if (guess == number) 
+                        {
+                            response = "=";
+                        }
+                        if (guess > number)
+                            response = ">";
+                        if (guess < number)
+                            response = "<";
+                    }
+                    catch (Exception exept) 
+                    {
+                        Console.WriteLine("Wrong message: " + exept.Message);
+                        response = "Wrong request!";
+                    }
+                }
+                Console.WriteLine("Responding with \"" + response + "\"");
                 data = Encoding.UTF8.GetBytes(response);
                 stream.Write(data, 0, data.Length);
             }
