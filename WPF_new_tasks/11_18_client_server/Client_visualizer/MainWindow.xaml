@@ -1,15 +1,17 @@
-<Window x:Class="My_work_12_02_21.MainWindow"
+<Window x:Class="Client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:My_work_12_02_21"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <ListBox x:Name="listbox_msg" HorizontalAlignment="Left" Height="312" Margin="581,57,0,0" VerticalAlignment="Top" Width="164"/>
-        <Label Content="Чат" HorizontalAlignment="Left" Height="27" Margin="643,25,0,0" VerticalAlignment="Top" Width="39"/>
-        <Rectangle Fill="Blue" HorizontalAlignment="Left" Height="34" Margin="242,184,0,0" Stroke="Black" VerticalAlignment="Top" Width="32" RadiusY="15.5" RadiusX="15.5" RenderTransformOrigin="0.732,0.634"/>
+        xmlns:local="clr-namespace:Client"
 
+        Title="MainWindow" Height="450" Width="800" Name="window1">
+    <Grid>
+        <ListBox x:Name="listbox_msg" HorizontalAlignment="Left" Height="312" Margin="581,57,0,0" VerticalAlignment="Top" Width="164" Visibility="Hidden" />
+        <Label Content="Чат" HorizontalAlignment="Left" Height="27" Margin="643,25,0,0" VerticalAlignment="Top" Width="39" Name="chat_label" Visibility="Hidden" />
+        <Rectangle Fill="Blue" HorizontalAlignment="Left" Height="34" Margin="242,184,0,0" Stroke="Black" VerticalAlignment="Top" Width="32" RadiusY="15.5" RadiusX="15.5" RenderTransformOrigin="0.732,0.634" Name="blue_dot" Visibility="Hidden" />
+        <Button Content="Начать представление" Height="41" HorizontalAlignment="Left" Margin="323,144,0,0" Name="start_button" VerticalAlignment="Top" Width="172" Click="start_button_Click" />
+        <TextBox Height="53" HorizontalAlignment="Left" Margin="336,236,0,0" Name="textBox1" VerticalAlignment="Top" Width="142" Text="127.0.0.1" />
+        <Label Content="IP" Height="28" HorizontalAlignment="Left" Margin="398,202,0,0" Name="label1" VerticalAlignment="Top" Width="31" />
+        <Label Content="Интервалы между запросами (ms)" Height="28" HorizontalAlignment="Left" Margin="321,306,0,0" Name="label2" VerticalAlignment="Top" />
+        <TextBox Height="41" HorizontalAlignment="Left" Margin="336,340,0,0" Name="textBox2" VerticalAlignment="Top" Width="137" Text="200" />
     </Grid>
 </Window>
