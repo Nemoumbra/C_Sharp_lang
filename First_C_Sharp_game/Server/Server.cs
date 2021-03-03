@@ -8,11 +8,30 @@ using System.Net.Sockets;
 
 namespace My_server_12_02_21
 {
+    class Circling 
+    {
+        public int x, y, d;
+        public string direction;
+        public byte red, green, blue;
+        public Circling(int x_coord, int y_coord, int diameter, byte R, byte G, byte B) 
+        {
+            x = x_coord;
+            y = y_coord;
+            d = diameter;
+            red = R;
+            green = G;
+            blue = B;
+        }
+    }
     class Program
     {
         static void Main(string[] args)
         {
+            List<string> chat = null;
+            //List<int> screens = null;
+            List<Circling> remotes = null;
             TcpListener server = null;
+            Random rand = null;
             Console.WriteLine("Program started");
             string custom_ip = "";
             Console.WriteLine("Please enter the IP address or press enter to skip this step");
@@ -36,11 +55,15 @@ namespace My_server_12_02_21
                 return;
             }
             Console.WriteLine("Server running");
+            chat = new List<string>();
+            remotes = new List<Circling>();
+            //screens = new List<int>();
+            rand = new Random(100);
             TcpClient client = null;
             string message = "";
             byte[] data = null;
             NetworkStream stream = null;
-            string ms_to_be_sent = "";
+            string response = "";
             while (true)
             {
                 try
@@ -58,24 +81,130 @@ namespace My_server_12_02_21
                     }
                     while (stream.DataAvailable);
                     //анализируем запрос
-                    //клиент-командир Андрея просит отправить сообщение
-                    if (message.StartsWith("ms") || message.StartsWith("b1")) //уточним
+                    string[] words = message.Split(':');
+                    //прислать сообщение с пульта
+                    if (words[0].Equals("SEND_TEXT"))
                     {
-                        //запомнить
-                        ms_to_be_sent = message;
+                        if (remotes.Count - 1 >= Convert.ToInt32(words[1]))
+                        {
+                            chat.Add(words[2]);
+                            data = Encoding.UTF8.GetBytes("OK");
+                            stream.Write(data, 0, data.Length);
+                            stream.Close();
+                            client.Close();
+                            continue;
+                        }
+                    }
+                    //зарегистрироваться в игре как пульт и получить свой собственный кружок
+                    if (words[0].Equals("REG_REMOTE")) 
+                    {
+                        remotes.Add(new Circling(rand.Next(100), rand.Next(100), 33, Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255))));
+                        data = Encoding.UTF8.GetBytes((remotes.Count - 1).ToString());
+                        stream.Write(data, 0, data.Length);
                         stream.Close();
                         client.Close();
                         continue;
                     }
-                    //обратился мой клиент-визуализатор
-                    if (message.StartsWith("GET"))
+                    /*
+                    //зарегистрироваться в игре как экран
+                    if (words[0].Equals("REG_SCREEN"))
                     {
-                        data = Encoding.UTF8.GetBytes(ms_to_be_sent);
+                        screens.Add(0);
+                        data = Encoding.UTF8.GetBytes("OK");
                         stream.Write(data, 0, data.Length);
                         stream.Close();
                         client.Close();
-                        ms_to_be_sent = "NONE";
                         continue;
+                    }
+                    */
+                    //получить новые сообщения экраном
+                    if (words[0].Equals("GET_TEXT")) 
+                    {
+                        int N = Convert.ToInt32(words[1]);
+                        /*
+                        if (screens.Count - 1 <= Convert.ToInt32(words[1])) 
+                        {
+                            if (screens[N] != chat.Count) //отправить новые сообщения
+                            {
+                                response = (chat.Count - screens[N]).ToString() + ":"; //вот столько сообщений будет отправлено
+                                for (int i = screens[N]; i < chat.Count; i++) 
+                                {
+                                    response += (chat[i] + ":");
+                                }
+                                data = Encoding.UTF8.GetBytes(response);
+                                stream.Write(data, 0, data.Length);
+                                stream.Close();
+                                client.Close();
+                                continue;
+                            }
+                        }
+                        */
+                        if (N < chat.Count) 
+                        {
+                            response = (chat.Count - N).ToString() + ":";
+                            for (int i = N; i < chat.Count; i++) 
+                            {
+                                response += chat[i] + ":";
+                            }
+                            data = Encoding.UTF8.GetBytes(response);
+                            stream.Write(data, 0, data.Length);
+                            stream.Close();
+                            client.Close();
+                            continue;
+                        }
+                    }
+                    if (words[0].Equals("GET_CIRCLES")) 
+                    {
+                        response = remotes.Count.ToString() + ":";
+                        for (int i = 0; i < remotes.Count; i++) 
+                        {
+                            response += remotes[i].x.ToString() + ":";
+                            response += remotes[i].y.ToString() + ":";
+                            response += remotes[i].d.ToString() + ":";
+                            response += remotes[i].red.ToString() + ":";
+                            response += remotes[i].green.ToString() + ":";
+                            response += remotes[i].blue.ToString() + ":";
+                        }
+                        data = Encoding.UTF8.GetBytes(response);
+                        stream.Write(data, 0, data.Length);
+                        stream.Close();
+                        client.Close();
+                        continue;
+                    }
+                    if (words[0].Equals("MOVE_CIRCLE")) 
+                    {
+                        int N = Convert.ToInt32(words[1]);
+                        if (remotes.Count - 1 >= N) 
+                        {
+                            switch (words[2]) 
+                            {
+                                case "UP":
+                                    {
+                                        remotes[N].y -= remotes[N].d / 2;
+                                        break;
+                                    }
+                                case "DOWN":
+                                    {
+                                        remotes[N].y += remotes[N].d / 2;
+                                        break;
+                                    }
+                                case "LEFT":
+                                    {
+                                        remotes[N].x -= remotes[N].d / 2;
+                                        break;
+                                    }
+                                case "RIGHT":
+                                    {
+                                        remotes[N].x -= remotes[N].d / 2;
+                                        break;
+                                    }
+                            }
+                            data = Encoding.UTF8.GetBytes("OK");
+                            stream.Write(data, 0, data.Length);
+                            stream.Close();
+                            client.Close();
+                            continue;
+                        }
                     }
                     data = Encoding.UTF8.GetBytes("Wrong request!");
                     stream.Write(data, 0, data.Length);
@@ -90,4 +219,5 @@ namespace My_server_12_02_21
         }
     }
 }
+
 
