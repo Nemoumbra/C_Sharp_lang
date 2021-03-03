@@ -14,12 +14,22 @@ namespace My_server_12_02_21
         {
             TcpListener server = null;
             Console.WriteLine("Program started");
+            string custom_ip = "";
+            Console.WriteLine("Please enter the IP address or press enter to skip this step");
+            custom_ip = Console.ReadLine();
             try
             {
-                server = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
+                if (custom_ip.Equals(""))
+                {
+                    server = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
+                }
+                else 
+                {
+                    server = new TcpListener(IPAddress.Parse(custom_ip), 8888);
+                }
                 server.Start();
             }
-            catch(Exception exept)
+            catch (Exception exept)
             {
                 Console.WriteLine("Error: " + exept.Message);
                 Console.ReadKey();
@@ -36,8 +46,9 @@ namespace My_server_12_02_21
                 try
                 {
                     client = server.AcceptTcpClient();
+                    //Console.WriteLine("New connection!");
                     stream = client.GetStream();
-                    message = "0";
+                    message = "";
                     data = new byte[256];
                     //считать запрос
                     do
@@ -48,20 +59,28 @@ namespace My_server_12_02_21
                     while (stream.DataAvailable);
                     //анализируем запрос
                     //клиент-командир Андрея просит отправить сообщение
-                    if ((message[0] == 'm' && message[1] == 's') || (message[0] == 'b') && message[1] == '1') //уточним
+                    if (message.StartsWith("ms") || message.StartsWith("b1")) //уточним
                     {
                         //запомнить
                         ms_to_be_sent = message;
+                        stream.Close();
+                        client.Close();
+                        continue;
                     }
                     //обратился мой клиент-визуализатор
-                    if (message[0] == 'G')
+                    if (message.StartsWith("GET"))
                     {
                         data = Encoding.UTF8.GetBytes(ms_to_be_sent);
                         stream.Write(data, 0, data.Length);
+                        stream.Close();
+                        client.Close();
+                        ms_to_be_sent = "NONE";
+                        continue;
                     }
+                    data = Encoding.UTF8.GetBytes("Wrong request!");
+                    stream.Write(data, 0, data.Length);
                     stream.Close();
                     client.Close();
-
                 }
                 catch (Exception exept)
                 {
