@@ -139,12 +139,12 @@ namespace My_server_12_02_21
                             }
                         }
                         */
-                        if (N < chat.Count) 
+                        if (/*N==0 && chat.Count == 0 ||*/ N <= chat.Count) 
                         {
-                            response = (chat.Count - N).ToString() + ":";
+                            response = (chat.Count - N).ToString();
                             for (int i = N; i < chat.Count; i++) 
                             {
-                                response += chat[i] + ":";
+                                response += ":" + chat[i];
                             }
                             data = Encoding.UTF8.GetBytes(response);
                             stream.Write(data, 0, data.Length);
@@ -155,15 +155,15 @@ namespace My_server_12_02_21
                     }
                     if (words[0].Equals("GET_CIRCLES")) 
                     {
-                        response = remotes.Count.ToString() + ":";
+                        response = remotes.Count.ToString();
                         for (int i = 0; i < remotes.Count; i++) 
                         {
-                            response += remotes[i].x.ToString() + ":";
-                            response += remotes[i].y.ToString() + ":";
-                            response += remotes[i].d.ToString() + ":";
-                            response += remotes[i].red.ToString() + ":";
-                            response += remotes[i].green.ToString() + ":";
-                            response += remotes[i].blue.ToString() + ":";
+                            response += ":" + remotes[i].x.ToString();
+                            response += ":" + remotes[i].y.ToString();
+                            response += ":" + remotes[i].d.ToString();
+                            response += ":" + remotes[i].red.ToString();
+                            response += ":" + remotes[i].green.ToString();
+                            response += ":" + remotes[i].blue.ToString();
                         }
                         data = Encoding.UTF8.GetBytes(response);
                         stream.Write(data, 0, data.Length);
@@ -195,7 +195,7 @@ namespace My_server_12_02_21
                                     }
                                 case "RIGHT":
                                     {
-                                        remotes[N].x -= remotes[N].d / 2;
+                                        remotes[N].x += remotes[N].d / 2;
                                         break;
                                     }
                             }
@@ -206,6 +206,7 @@ namespace My_server_12_02_21
                             continue;
                         }
                     }
+                    Console.WriteLine(words[1]);
                     data = Encoding.UTF8.GetBytes("Wrong request!");
                     stream.Write(data, 0, data.Length);
                     stream.Close();
@@ -219,5 +220,8 @@ namespace My_server_12_02_21
         }
     }
 }
+
+
+
 
 
