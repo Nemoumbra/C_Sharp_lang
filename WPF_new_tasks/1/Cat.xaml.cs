@@ -20,10 +20,10 @@ namespace WPF_new_tasks
     /// </summary>
     public partial class Cat : UserControl
     {
-        bool asleep;
-        bool alive;
+        public bool asleep;
+        public bool alive;
         int fullness;
-        DispatcherTimer timer;
+        public DispatcherTimer hunger_timer, sleep_timer;
         Random random;
 
         public Cat()
@@ -32,9 +32,37 @@ namespace WPF_new_tasks
             fullness = 100;
             asleep = false;
             alive = true;
+            random = new Random();
+            sleep_timer = new DispatcherTimer();
             //принято решение обрабатывать список котов из Main-а
         }
 
+        public void get_hungrier(object sender, EventArgs e)
+        {
+            if (cat_health.Value <= 8)
+            {
+                cat_health.Value = 0;
+                alive = false;
+                hunger_timer.IsEnabled = false;
+                sleep_timer.IsEnabled = false;
+                cat_health.Visibility = Visibility.Hidden;
+                cat_image_1.Visibility = Visibility.Hidden;
+                cat_image_2.Visibility = Visibility.Hidden;
+                cat_label.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                cat_health.Value -= 8;
+            }
+        }
+        public void awake(object sender, EventArgs e) 
+        {
+            asleep = false;
+            sleep_timer.IsEnabled = false;
+            cat_image_2.Visibility = Visibility.Hidden;
+            cat_image_1.Visibility = Visibility.Visible;
+            hunger_timer.IsEnabled = true;
+        }
         private void cat_image_1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //кушать
@@ -60,6 +88,11 @@ namespace WPF_new_tasks
                 return;
             cat_image_1.Visibility = Visibility.Hidden;
             cat_image_2.Visibility = Visibility.Visible;
+            asleep = true;
+            hunger_timer.IsEnabled = false;
+            sleep_timer.Tick += awake;
+            sleep_timer.Interval = new TimeSpan(0, 0, 3 + random.Next(7));
+            sleep_timer.IsEnabled = true;
         }
     }
 }
