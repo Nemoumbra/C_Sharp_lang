@@ -1,0 +1,14 @@
+<Window x:Class="Tests.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="450" Width="800" KeyDown="Window_KeyDown" ShowInTaskbar="True" Name="window">
+    <Grid Name="grid">
+        <Rectangle x:Name="colorful_rectangle" HorizontalAlignment="Left" Height="98" Margin="262,79,0,0" Stroke="Black" VerticalAlignment="Top" Width="186" Fill="Black" MouseEnter="colorful_rectangle_MouseEnter" MouseLeave="colorful_rectangle_MouseLeave" KeyDown="colorful_rectangle_KeyDown" />
+        <!--<Button x:Name="bytton1" Content="Button" HorizontalAlignment="Left" Height="22" Margin="606,79,0,0" VerticalAlignment="Top" Width="84"/>
+        <Button x:Name="bytton2" Content="Button" HorizontalAlignment="Left" Height="8" Margin="153,25,0,0" VerticalAlignment="Top" Width="14"/>-->
+        <TextBox x:Name="tixtbox" HorizontalAlignment="Left" Height="77" Margin="546,237,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="144" KeyDown="tixtbox_KeyDown" MouseLeave="tixtbox_MouseLeave" MouseEnter="tixtbox_MouseEnter" />
+        <Rectangle x:Name="circling" Fill="Black" HorizontalAlignment="Left" Height="38" Margin="153,279,0,0" Stroke="Black" VerticalAlignment="Top" Width="38" RadiusY="18.5" RadiusX="18.5" KeyDown="circling_KeyDown" />
+
+    </Grid>
+
+</Window>
