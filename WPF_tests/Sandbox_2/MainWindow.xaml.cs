@@ -23,7 +23,7 @@ namespace Tests
         public MainWindow()
         {
             InitializeComponent();
-            
+            //tixtbox.AppendText("1");
             //tixtbox.Focusable = false;
             try
             {
@@ -65,6 +65,12 @@ namespace Tests
             if (!Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 //Keyboard.Focus(tixtbox);
+                if (Keyboard.IsKeyDown(Key.Tab)) 
+                {
+                    tixtbox.Focusable = true;
+                    tixtbox.CaretBrush = null;
+                    Keyboard.Focus(tixtbox);
+                }
                 return;
             }
             switch (e.Key)
@@ -129,6 +135,58 @@ namespace Tests
         private void circling_KeyDown(object sender, KeyEventArgs e)
         {
             MessageBox.Show("Circling event handler activated!");
+        }
+
+        private void textBox1_MouseEnter(object sender, MouseEventArgs e)
+        {
+            textBox1.Focusable = true;
+            textBox1.CaretBrush = null;
+            textBox1.Focus();
+        }
+
+        private void textBox1_MouseLeave(object sender, MouseEventArgs e)
+        {
+            textBox1.Focusable = false;
+            textBox1.CaretBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+        }
+
+        private void tixtbox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            //MessageBox.Show("Tunneling event intercepted!", "data");
+            if (!Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                //Keyboard.Focus(tixtbox);
+                if (Keyboard.IsKeyDown(Key.Tab))
+                {
+                    tixtbox.Focusable = true;
+                    tixtbox.CaretBrush = null;
+                    Keyboard.Focus(tixtbox);
+                }
+                return;
+            }
+            switch (e.Key)
+            {
+                case Key.Right:
+                    {
+                        circling.Margin = new Thickness(circling.Margin.Left + 10, circling.Margin.Top, 0, 0);
+                        break;
+                    }
+                case Key.Up:
+                    {
+                        circling.Margin = new Thickness(circling.Margin.Left, circling.Margin.Top - 10, 0, 0);
+                        break;
+                    }
+                case Key.Left:
+                    {
+                        circling.Margin = new Thickness(circling.Margin.Left - 10, circling.Margin.Top, 0, 0);
+                        break;
+                    }
+                case Key.Down:
+                    {
+                        circling.Margin = new Thickness(circling.Margin.Left, circling.Margin.Top + 10, 0, 0);
+                        break;
+                    }
+            }
         }
     }
 }
