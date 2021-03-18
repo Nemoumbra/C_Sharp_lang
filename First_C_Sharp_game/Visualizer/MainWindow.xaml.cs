@@ -26,6 +26,7 @@ namespace Client
         List<Rectangle> circles = null;
         //TcpClient client = null;
         string IP = "";
+        string port = "";
         void hide(UIElement elem) 
         {
             elem.Visibility = Visibility.Hidden;
@@ -84,7 +85,7 @@ namespace Client
             try
             {
                 //client = new TcpClient();
-                client.Connect(IP, 8888);
+                client.Connect(IP, Convert.ToInt32(port));
                 data = Encoding.UTF8.GetBytes("GET_TEXT:"+listbox_msg.Items.Count.ToString());
                 stream = client.GetStream();
                 //сделать запрос
@@ -122,7 +123,7 @@ namespace Client
             try
             {
                 //client = new TcpClient();
-                client.Connect(IP, 8888);
+                client.Connect(IP, Convert.ToInt32(port));
                 data = Encoding.UTF8.GetBytes("GET_CIRCLES");
                 stream = client.GetStream();
                 //сделать запрос
@@ -275,13 +276,31 @@ namespace Client
             hide(textBox1);
             hide(textBox2);
             hide(label2);
-            if (!textBox1.Text.Equals(""))
+            hide(textBox3);
+            hide(label3);
+            hide(checkBox1);
+            if (checkBox1.IsChecked == true)
             {
-                IP = textBox1.Text;
+                IP = "127.0.0.1";
+            }
+            else
+            {
+                if (!textBox1.Text.Equals(""))
+                {
+                    IP = textBox1.Text;
+                }
+                else
+                {
+                    IP = "127.0.0.1";
+                }
+            }
+            if (!textBox3.Text.Equals(""))
+            {
+                port = textBox3.Text;
             }
             else 
             {
-                IP = "127.0.0.1";
+                port = "8888";
             }
             DispatcherTimer timer1 = new DispatcherTimer();
             timer1.Interval = new TimeSpan(0, 0, 0, 0, interval);
@@ -293,5 +312,18 @@ namespace Client
             timer2.Tick += get_circles;
             timer2.IsEnabled = true;
         }
+
+        private void checkBox1_Checked(object sender, RoutedEventArgs e)
+        {
+            textBox1.IsEnabled = false;
+            label1.IsEnabled = false;
+        }
+
+        private void checkBox1_Unchecked(object sender, RoutedEventArgs e)
+        {
+            textBox1.IsEnabled = true;
+            label1.IsEnabled = true;
+        }
     }
 }
+
