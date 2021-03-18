@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.IO;
 
 namespace My_server_12_02_21
 {
@@ -33,27 +34,34 @@ namespace My_server_12_02_21
             TcpListener server = null;
             Random rand = null;
             Console.WriteLine("Program started");
-            string custom_ip = "";
+
+            string IP="", port="";
             Console.WriteLine("Please enter the IP address or press enter to skip this step");
-            custom_ip = Console.ReadLine();
+            IP = Console.ReadLine();
+            if (IP.Equals("")) 
+            {
+                IP = "127.0.0.1";
+                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
+            }
+            Console.WriteLine("Now enter the port or press enter to skip this step");
+            port = Console.ReadLine();
+            if (port.Equals("")) 
+            {
+                port = "8888";
+                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
+            }
             try
             {
-                if (custom_ip.Equals(""))
-                {
-                    server = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
-                }
-                else 
-                {
-                    server = new TcpListener(IPAddress.Parse(custom_ip), 8888);
-                }
+                server = new TcpListener(IPAddress.Parse(IP), Convert.ToInt32(port));
                 server.Start();
             }
-            catch (Exception exept)
+            catch (Exception exept) 
             {
                 Console.WriteLine("Error: " + exept.Message);
                 Console.ReadKey();
                 return;
             }
+
             Console.WriteLine("Server running");
             chat = new List<string>();
             remotes = new List<Circling>();
@@ -139,13 +147,26 @@ namespace My_server_12_02_21
                             }
                         }
                         */
-                        if (/*N==0 && chat.Count == 0 ||*/ N <= chat.Count) 
+                        if (/*N==0 && chat.Count == 0 ||*/ N >= 0 && N <= chat.Count)
                         {
                             response = (chat.Count - N).ToString();
                             for (int i = N; i < chat.Count; i++) 
                             {
                                 response += ":" + chat[i];
                             }
+                            data = Encoding.UTF8.GetBytes(response);
+                            stream.Write(data, 0, data.Length);
+                            stream.Close();
+                            client.Close();
+                            continue;
+                        }
+                    }
+                    if (words[0].Equals("GET_MESSAGE")) 
+                    {
+                        int N = Convert.ToInt32(words[1]);
+                        if (N >= 0 && N < chat.Count) 
+                        {
+                            response = chat[N];
                             data = Encoding.UTF8.GetBytes(response);
                             stream.Write(data, 0, data.Length);
                             stream.Close();
@@ -174,7 +195,7 @@ namespace My_server_12_02_21
                     if (words[0].Equals("MOVE_CIRCLE")) 
                     {
                         int N = Convert.ToInt32(words[1]);
-                        if (remotes.Count - 1 >= N) 
+                        if (N <= remotes.Count - 1) 
                         {
                             switch (words[2]) 
                             {
@@ -206,7 +227,10 @@ namespace My_server_12_02_21
                             continue;
                         }
                     }
-                    Console.WriteLine(words[1]);
+                    if (words.Length >= 1)
+                    {
+                        Console.WriteLine(words[1]);
+                    }
                     data = Encoding.UTF8.GetBytes("Wrong request!");
                     stream.Write(data, 0, data.Length);
                     stream.Close();
