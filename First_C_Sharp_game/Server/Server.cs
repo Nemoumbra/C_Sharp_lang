@@ -38,27 +38,39 @@ namespace Server
             remotes = server_var.remotes;
             rand = server_var.rand;
         }
+
+        public void send_data(NetworkStream stream, string message) 
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes("OK");
+            stream.Write(buffer, 0, buffer.Length);
+        }
+
+        public string get_data(NetworkStream stream) 
+        {
+            string message = "";
+            byte[] data = new byte[256];
+            do
+            {
+                int bytes = stream.Read(data, 0, data.Length);
+                message += Encoding.UTF8.GetString(data, 0, bytes);
+            }
+            while (stream.DataAvailable);
+            return message;
+        }
         public void deal_with_client()
         {
             try
             {
                 NetworkStream stream = client.GetStream();
                 string message = "", response = "";
-                byte[] data = new byte[256];
-                do
-                {
-                    int bytes = stream.Read(data, 0, data.Length);
-                    message += Encoding.UTF8.GetString(data, 0, bytes);
-                }
-                while (stream.DataAvailable);
+                message = get_data(stream);
                 string[] words = message.Split(':');
                 if (words[0].Equals("SEND_TEXT"))
                 {
                     if (remotes.Count - 1 >= Convert.ToInt32(words[1]))
                     {
-                        chat.Add(words[2]);
-                        data = Encoding.UTF8.GetBytes("OK");
-                        stream.Write(data, 0, data.Length);
+                        chat.Add(words[2]); 
+                        send_data(stream, "OK");
                         stream.Close();
                         client.Close();
                         return;       
@@ -67,8 +79,7 @@ namespace Server
                 if (words[0].Equals("REG_REMOTE"))
                 {
                     remotes.Add(new Circling(rand.Next(100), rand.Next(100), 33, Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255))));
-                    data = Encoding.UTF8.GetBytes((remotes.Count - 1).ToString());
-                    stream.Write(data, 0, data.Length);
+                    send_data(stream, (remotes.Count - 1).ToString());
                     stream.Close();
                     client.Close();
                     return;
@@ -83,8 +94,7 @@ namespace Server
                         {
                             response += ":" + chat[i];
                         }
-                        data = Encoding.UTF8.GetBytes(response);
-                        stream.Write(data, 0, data.Length);
+                        send_data(stream, response);
                         stream.Close();
                         client.Close();
                         return;
@@ -96,8 +106,7 @@ namespace Server
                     if (N >= 0 && N < chat.Count)
                     {
                         response = chat[N];
-                        data = Encoding.UTF8.GetBytes(response);
-                        stream.Write(data, 0, data.Length);
+                        send_data(stream, response);
                         stream.Close();
                         client.Close();
                         return;
@@ -115,8 +124,7 @@ namespace Server
                         response += ":" + remotes[i].green.ToString();
                         response += ":" + remotes[i].blue.ToString();
                     }
-                    data = Encoding.UTF8.GetBytes(response);
-                    stream.Write(data, 0, data.Length);
+                    send_data(stream, response);
                     stream.Close();
                     client.Close();
                     return;
@@ -149,8 +157,7 @@ namespace Server
                                     break;
                                 }
                         }
-                        data = Encoding.UTF8.GetBytes("OK");
-                        stream.Write(data, 0, data.Length);
+                        send_data(stream, "OK");
                         stream.Close();
                         client.Close();
                         return;
@@ -161,8 +168,7 @@ namespace Server
                 {
                     Console.WriteLine(words[1]);
                 }*/
-                data = Encoding.UTF8.GetBytes("Wrong request!");
-                stream.Write(data, 0, data.Length);
+                send_data(stream, "Wrong request!");
                 stream.Close();
                 client.Close();
             }
@@ -197,21 +203,7 @@ namespace Server
                 return;
             }
         }
-        /*
-        public void deal_with_client() 
-        {
-            NetworkStream stream = client.GetStream();
-            string message = "", response="";
-            byte[] data = new byte[256];
-            do 
-            {
-                int bytes = stream.Read(data, 0, data.Length);
-                message += Encoding.UTF8.GetString(data, 0, bytes);
-            }
-            while (stream.DataAvailable);
-            string[] words = message.Split(':');
-        }
-        */
+        
         public void process_requests()
         {
             while (true)
@@ -241,11 +233,11 @@ namespace Server
     }
     class Program
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Program started");
+        public static string IP = "";
+        public static string port = "";
 
-            string IP = "", port = "";
+        static void collect_ip_and_port() 
+        {
             Console.WriteLine("Please enter the IP address or press enter to skip this step");
             IP = Console.ReadLine();
             if (IP.Equals(""))
@@ -260,10 +252,39 @@ namespace Server
                 port = "8888";
                 Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
             }
+        }
+        static void Main(string[] args)
+        {
+            if (args.Length != 0) 
+            {
+                Console.WriteLine("Command line arguments are not supported yet");
+                return;
+            }
+            Console.WriteLine("Program started");
+            if (!File.Exists("Settings.txt"))
+            {
+                Console.WriteLine("Settings.txt not found");
+                collect_ip_and_port();
+            }
+            else 
+            {
+                Console.WriteLine("Settings.txt found");
+                string[] lines = File.ReadAllLines("Settings.txt");
+                if (lines.Length == 2)
+                {
+                    Console.WriteLine("Picking data from Settings.txt");
+                    IP = lines[0];
+                    port = lines[1];
+                }
+                else 
+                {
+                    Console.WriteLine("Wrong file structure");
+                    collect_ip_and_port();
+                }
+            }
             server_part server = new server_part(IP, Convert.ToInt32(port), 123);
             Thread server_thread = new Thread(server.process_requests);
             server_thread.Start();
-            
         }
     }
 }
