@@ -29,7 +29,7 @@ namespace Server
     {
         public TcpClient client;
         public List <string> chat;
-        public List <Circling> remotes;
+        public Dictionary <string, Circling> remotes;
         public Random rand;
         public my_client(server_part server_var/*TcpListener server, List<string> game_chat, List<Circling> players, Random random*/)
         {
@@ -41,7 +41,7 @@ namespace Server
 
         public void send_data(NetworkStream stream, string message) 
         {
-            byte[] buffer = Encoding.UTF8.GetBytes("OK");
+            byte[] buffer = Encoding.UTF8.GetBytes(message);
             stream.Write(buffer, 0, buffer.Length);
         }
 
@@ -67,7 +67,7 @@ namespace Server
                 string[] words = message.Split(':');
                 if (words[0].Equals("SEND_TEXT"))
                 {
-                    if (remotes.Count - 1 >= Convert.ToInt32(words[1]))
+                    if (remotes.Keys.Contains(words[1]))
                     {
                         chat.Add(words[2]); 
                         send_data(stream, "OK");
@@ -78,8 +78,9 @@ namespace Server
                 }
                 if (words[0].Equals("REG_REMOTE"))
                 {
-                    remotes.Add(new Circling(rand.Next(100), rand.Next(100), 33, Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255))));
-                    send_data(stream, (remotes.Count - 1).ToString());
+                    string key = rand.Next(1000000).ToString();
+                    remotes[key] = new Circling(rand.Next(100), rand.Next(100), 33, Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255)), Convert.ToByte(rand.Next(255)));
+                    send_data(stream, key);
                     stream.Close();
                     client.Close();
                     return;
@@ -115,15 +116,16 @@ namespace Server
                 if (words[0].Equals("GET_CIRCLES"))
                 {
                     response = remotes.Count.ToString();
-                    for (int i = 0; i < remotes.Count; i++)
+                    foreach (Circling kruzhok in remotes.Values) 
                     {
-                        response += ":" + remotes[i].x.ToString();
-                        response += ":" + remotes[i].y.ToString();
-                        response += ":" + remotes[i].d.ToString();
-                        response += ":" + remotes[i].red.ToString();
-                        response += ":" + remotes[i].green.ToString();
-                        response += ":" + remotes[i].blue.ToString();
+                        response += ":" + kruzhok.x.ToString();
+                        response += ":" + kruzhok.y.ToString();
+                        response += ":" + kruzhok.d.ToString();
+                        response += ":" + kruzhok.red.ToString();
+                        response += ":" + kruzhok.green.ToString();
+                        response += ":" + kruzhok.blue.ToString();
                     }
+                    //Console.WriteLine(response);
                     send_data(stream, response);
                     stream.Close();
                     client.Close();
@@ -131,29 +133,29 @@ namespace Server
                 }
                 if (words[0].Equals("MOVE_CIRCLE"))
                 {
-                    int N = Convert.ToInt32(words[1]);
-                    if (N <= remotes.Count - 1)
+                    string key = words[1];
+                    if (remotes.Keys.Contains(key)) 
                     {
                         switch (words[2])
                         {
                             case "UP":
                                 {
-                                    remotes[N].y -= remotes[N].d / 2;
+                                    remotes[key].y -= remotes[key].d / 2;
                                     break;
                                 }
                             case "DOWN":
                                 {
-                                    remotes[N].y += remotes[N].d / 2;
+                                    remotes[key].y += remotes[key].d / 2;
                                     break;
                                 }
                             case "LEFT":
                                 {
-                                    remotes[N].x -= remotes[N].d / 2;
+                                    remotes[key].x -= remotes[key].d / 2;
                                     break;
                                 }
                             case "RIGHT":
                                 {
-                                    remotes[N].x += remotes[N].d / 2;
+                                    remotes[key].x += remotes[key].d / 2;
                                     break;
                                 }
                         }
@@ -183,12 +185,12 @@ namespace Server
         public TcpListener server;
         //public TcpClient client;
         public List<string> chat;
-        public List<Circling> remotes;
+        public Dictionary<string, Circling> remotes;
         public Random rand;
         public server_part(string ip, int port, int seed)
         {
             chat = new List<string>();
-            remotes = new List<Circling>();
+            remotes = new Dictionary<string, Circling>();
             rand = new Random(seed);
             try
             {
