@@ -14,8 +14,10 @@
         <Button x:Name="up_button" Content="^" HorizontalAlignment="Left" Height="57" Margin="589,232,0,0" VerticalAlignment="Top" Width="59" FontSize="16" Click="up_button_Click" Visibility="Hidden"/>
         <TextBox x:Name="input_textbox" HorizontalAlignment="Left" Height="85" Margin="89,248,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262" Visibility="Hidden"/>
         <Button x:Name="send_button" Content="Отправить" HorizontalAlignment="Left" Height="32" Margin="155,350,0,0" VerticalAlignment="Top" Width="133" Click="send_button_Click" Visibility="Hidden"/>
-        <TextBox x:Name="ip_textbox" HorizontalAlignment="Left" Height="40" Margin="325,123,0,0" TextWrapping="Wrap" Text="127.0.01" VerticalAlignment="Top" Width="153"/>
-        <Label x:Name="ip_label" Content="IP" HorizontalAlignment="Left" Height="28" Margin="279,126,0,0" VerticalAlignment="Top" Width="31"/>
-
+        <TextBox x:Name="ip_textbox" HorizontalAlignment="Left" Height="40" Margin="215,160,0,0" TextWrapping="Wrap" Text="192.168." VerticalAlignment="Top" Width="153" IsEnabled="False" />
+        <Label x:Name="ip_label" Content="IP" HorizontalAlignment="Left" Height="28" Margin="282,128,0,0" VerticalAlignment="Top" Width="31" IsEnabled="False" />
+        <CheckBox x:Name="localhost_checkbox" Content="Local host" Height="21" HorizontalAlignment="Left" Margin="357,122,0,0" VerticalAlignment="Top" Width="81" IsChecked="True" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" />
+        <TextBox x:Name="port_textbox" Height="40" HorizontalAlignment="Left" Margin="432,160,0,0" VerticalAlignment="Top" Width="153" Text="8888" />
+        <Label x:Name="port_label" Content="Port" Height="28" HorizontalAlignment="Left" Margin="492,128,0,0" VerticalAlignment="Top" Width="36" />
     </Grid>
 </Window>
