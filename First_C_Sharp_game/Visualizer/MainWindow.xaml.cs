@@ -27,11 +27,15 @@ namespace Client
         //TcpClient client = null;
         string IP = "";
         string port = "";
-        void hide(UIElement elem) 
+        int failed_attempts = 0;
+        bool showing_message_box = false;
+        int interval = 0; // or "retry_after"
+        DispatcherTimer timer_messages, timer_circles;
+        void hide(UIElement elem)
         {
             elem.Visibility = Visibility.Hidden;
         }
-        void show(UIElement elem) 
+        void show(UIElement elem)
         {
             elem.Visibility = Visibility.Visible;
         }
@@ -41,6 +45,50 @@ namespace Client
             ListBoxItem temp = new ListBoxItem();
             temp.Content = msg;
             listbox_msg.Items.Add(temp);
+        }
+        void activate_game_screen() 
+        {
+            show(chat_label);
+            show(listbox_msg);
+            hide(start_button);
+            hide(label1);
+            hide(textBox1);
+            hide(textBox2);
+            hide(label2);
+            hide(textBox3);
+            hide(label3);
+            hide(checkBox1);
+            /*foreach (UIElement circling in grid1.Children) 
+            {
+                if (circling is Rectangle) 
+                {
+                    show(circling);
+                }
+            }*/
+        }
+        void deactivate_game_screen() 
+        {
+            hide(chat_label);
+            hide(listbox_msg);
+            show(start_button);
+            show(label1);
+            show(textBox1);
+            show(textBox2);
+            show(label2);
+            show(textBox3);
+            show(label3);
+            show(checkBox1);
+            
+            foreach (Rectangle circling in circles)
+            {
+                if (circling != null)
+                {
+                    grid1.Children.Remove(circling);
+                    //circles.Remove(circling);
+                }
+            }
+            circles.Clear();
+            listbox_msg.Items.Clear();
         }
         /*
         void move_dot(int index, string direction) 
@@ -76,7 +124,7 @@ namespace Client
                 MessageBox.Show(exept.Message, "Error!");
             }
         }*/
-        void get_messages(object sender, EventArgs e) 
+        void get_messages(object sender, EventArgs e)
         {
             TcpClient client = new TcpClient();
             NetworkStream stream = null;
@@ -86,7 +134,7 @@ namespace Client
             {
                 //client = new TcpClient();
                 client.Connect(IP, Convert.ToInt32(port));
-                data = Encoding.UTF8.GetBytes("GET_TEXT:"+listbox_msg.Items.Count.ToString());
+                data = Encoding.UTF8.GetBytes("GET_TEXT:" + listbox_msg.Items.Count.ToString());
                 stream = client.GetStream();
                 //сделать запрос
                 stream.Write(data, 0, data.Length);
@@ -101,20 +149,88 @@ namespace Client
                 //обрабатываем ответ
                 string[] words = response.Split(':');
                 int N = Convert.ToInt32(words[0]);
-                if (N != 0) 
+                if (N != 0)
                 {
-                    for (int i = 1; i <= N; i++) 
+                    for (int i = 1; i <= N; i++)
                     {
                         add_message(words[i]);
                     }
                 }
             }
+            /*
             catch (Exception exept)
             {
+                MessageBox.Show("Exeption type:" + exept.GetType());
+                if (exept is SocketException) 
+                {
+                    //MessageBox.Show("It is a SocketExeption");
+                    if ((exept as SocketException).SocketErrorCode == SocketError.ConnectionRefused) 
+                    {
+                        //MessageBox.Show("It is \"connection refused\"");
+
+                    }
+                }
+                if (exept is SocketException) 
+                {
+                    if (failed_attempts > 5) 
+                    {
+                        MessageBoxResult res = MessageBox.Show("Cannot establish a connection with server\nContinue?", "Error!", MessageBoxButton.YesNo);
+                        if (res == MessageBoxResult.Yes) 
+                        {
+
+                        }
+                    }
+                    failed_attempts++;
+                }
+                //The next line is crucial yet unnecessary
+                //MessageBox.Show("Error: " + exept.Message, "Error!");
+               
+
+            }
+            */
+            catch (SocketException exept)
+            {
+                if (exept.SocketErrorCode == SocketError.ConnectionRefused)
+                {
+                    if (failed_attempts > 5)
+                    {
+                        if (!showing_message_box)
+                        {
+                            timer_circles.Stop();
+                            timer_messages.Stop();
+                            showing_message_box = true;
+                            MessageBoxResult res = MessageBox.Show("Cannot establish a connection with server.\nContinue?", "Error!", MessageBoxButton.YesNo);
+                            if (res == MessageBoxResult.No)
+                            {
+                                deactivate_game_screen();
+                            }
+                            else
+                            {
+                                timer_circles.Start();
+                                timer_messages.Start();
+                            }
+                            showing_message_box = false;
+                        }
+                    }
+                    else
+                    {
+                        interval += 200;
+                    }
+                    failed_attempts++;
+                }
+            }
+            catch (Exception exept)
+            {
+                /*if (!showing_message_box)
+                {
+                    showing_message_box = true;
+                    MessageBox.Show("Error: " + exept.Message, "Error!");
+                    showing_message_box = false;
+                }*/
                 MessageBox.Show("Error: " + exept.Message, "Error!");
             }
         }
-        void get_circles(object sender, EventArgs e) 
+        void get_circles(object sender, EventArgs e)
         {
             TcpClient client = new TcpClient();
             NetworkStream stream = null;
@@ -158,12 +274,12 @@ namespace Client
                 }*/
                 string[] words = response.Split(':');
                 int N = Convert.ToInt32(words[0]);
-                if (N != 0) 
+                if (N != 0)
                 {
                     //проверяем, появились ли новые
-                    if (circles.Count < N) 
+                    if (circles.Count < N)
                     {
-                        for (int i = 0; i < N - circles.Count; i++) 
+                        for (int i = 0; i < N - circles.Count; i++)
                         {
                             Rectangle temp = new Rectangle();
                             temp.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
@@ -179,7 +295,7 @@ namespace Client
                     }
                     byte R, G, B;
                     int x, y, d;
-                    for (int i = 0; i < circles.Count; i++) 
+                    for (int i = 0; i < circles.Count; i++)
                     {
                         x = Convert.ToInt32(words[6 * i + 1]);
                         y = Convert.ToInt32(words[6 * i + 2]);
@@ -194,8 +310,45 @@ namespace Client
                     }
                 }
             }
+            catch (SocketException exept) 
+            {
+                if (exept.SocketErrorCode == SocketError.ConnectionRefused)
+                {
+                    if (failed_attempts > 5)
+                    {
+                        if (!showing_message_box)
+                        {
+                            timer_circles.Stop();
+                            timer_messages.Stop();
+                            showing_message_box = true;
+                            MessageBoxResult res = MessageBox.Show("Cannot establish a connection with server\nContinue?", "Error!", MessageBoxButton.YesNo);
+                            if (res == MessageBoxResult.No)
+                            {
+                                deactivate_game_screen();
+                            }
+                            else
+                            {
+                                timer_circles.Start();
+                                timer_messages.Start();
+                            }
+                            showing_message_box = false;
+                        }
+                    }
+                    else 
+                    {
+                        interval += 200;
+                    }
+                    failed_attempts++;
+                }
+            }
             catch (Exception exept)
             {
+                /*if (!showing_message_box)
+                {
+                    showing_message_box = true;
+                    MessageBox.Show("Error: " + exept.Message, "Error!");
+                    showing_message_box = false;
+                }*/
                 MessageBox.Show("Error: " + exept.Message, "Error!");
             }
         }
@@ -253,22 +406,25 @@ namespace Client
         {
             InitializeComponent();
             circles = new List<Rectangle>();
+            timer_circles = new DispatcherTimer();
+            timer_messages = new DispatcherTimer();
             //circles.Add(blue_dot);
         }
-        
+
         private void start_button_Click(object sender, RoutedEventArgs e)
         {
-            int interval = 0;
             try
             {
                 interval = Convert.ToInt32(textBox2.Text);
             }
-            catch (Exception exept) 
+            catch (Exception exept)
             {
                 MessageBox.Show(exept.Message, "Error!");
                 return;
             }
+            failed_attempts = 0;
             //show(blue_dot);
+            /*
             show(chat_label);
             show(listbox_msg);
             hide(start_button);
@@ -278,7 +434,8 @@ namespace Client
             hide(label2);
             hide(textBox3);
             hide(label3);
-            hide(checkBox1);
+            hide(checkBox1);*/
+            activate_game_screen();
             if (checkBox1.IsChecked == true)
             {
                 IP = "127.0.0.1";
@@ -298,10 +455,11 @@ namespace Client
             {
                 port = textBox3.Text;
             }
-            else 
+            else
             {
                 port = "8888";
             }
+            /*
             DispatcherTimer timer1 = new DispatcherTimer();
             timer1.Interval = new TimeSpan(0, 0, 0, 0, interval);
             //timer.Tick += get_updates;
@@ -310,7 +468,15 @@ namespace Client
             DispatcherTimer timer2 = new DispatcherTimer();
             timer2.Interval = new TimeSpan(0, 0, 0, 0, interval);
             timer2.Tick += get_circles;
-            timer2.IsEnabled = true;
+            timer2.IsEnabled = true;*/
+            //timer_circles = new DispatcherTimer();
+            timer_circles.Interval = new TimeSpan(0, 0, 0, 0, interval);
+            timer_circles.Tick += get_circles;
+            timer_circles.IsEnabled = true;
+            //timer_messages = new DispatcherTimer();
+            timer_messages.Interval = new TimeSpan(0, 0, 0, 0, interval);
+            timer_messages.Tick += get_messages;
+            timer_messages.IsEnabled = true;
         }
 
         private void checkBox1_Checked(object sender, RoutedEventArgs e)
