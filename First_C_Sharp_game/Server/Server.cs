@@ -62,6 +62,7 @@ namespace Server
             try
             {
                 NetworkStream stream = client.GetStream();
+                stream.ReadTimeout = 10000;
                 string message = "", response = "";
                 message = get_data(stream);
                 string[] words = message.Split(':');
@@ -187,6 +188,7 @@ namespace Server
         public List<string> chat;
         public Dictionary<string, Circling> remotes;
         public Random rand;
+        public bool active;
         public server_part(string ip, int port, int seed)
         {
             chat = new List<string>();
@@ -197,10 +199,12 @@ namespace Server
                 server = new TcpListener(IPAddress.Parse(ip), port);
                 server.Start();
                 Console.WriteLine("Server running");
+                active = true;
             }
             catch (Exception exept)
             {
                 Console.WriteLine("Error: " + exept.Message);
+                active = false;
                 Console.ReadKey();
                 return;
             }
@@ -217,14 +221,16 @@ namespace Server
                     Thread client_thread = new Thread(client.deal_with_client);
                     client_thread.Start();
                     */
-                    
-                    if (server.Pending()) 
+                    if (active)
                     {
-                        my_client client = new my_client(this);
-                        Thread client_thread = new Thread(client.deal_with_client);
-                        client_thread.Start();
+                        if (server.Pending())
+                        {
+                            my_client client = new my_client(this);
+                            Thread client_thread = new Thread(client.deal_with_client);
+                            client_thread.Start();
+                        }
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(40);
                 }
                 catch (Exception exept)
                 {
@@ -284,9 +290,20 @@ namespace Server
                     collect_ip_and_port();
                 }
             }
-            server_part server = new server_part(IP, Convert.ToInt32(port), 123);
+            server_part server = new server_part(IP, Convert.ToInt32(port), 128);
             Thread server_thread = new Thread(server.process_requests);
             server_thread.Start();
+
+            ConsoleKey key;
+            while (true) 
+            {
+                key = Console.ReadKey(true).Key;
+                if (key == ConsoleKey.Enter) 
+                {
+                    server.active = !server.active;
+                    Console.WriteLine(server.active.ToString());
+                }
+            }
         }
     }
 }
