@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Threading;
+using System.IO;
 
 namespace Client
 {
@@ -29,7 +30,8 @@ namespace Client
         string port = "";
         int failed_attempts = 0;
         bool showing_message_box = false;
-        int interval = 0; // or "retry_after"
+        int interval = 0;
+        int retry_after = 0;
         DispatcherTimer timer_messages, timer_circles;
         void hide(UIElement elem)
         {
@@ -136,6 +138,7 @@ namespace Client
                 client.Connect(IP, Convert.ToInt32(port));
                 data = Encoding.UTF8.GetBytes("GET_TEXT:" + listbox_msg.Items.Count.ToString());
                 stream = client.GetStream();
+                stream.ReadTimeout = 100;
                 //сделать запрос
                 stream.Write(data, 0, data.Length);
                 response = "";
@@ -156,6 +159,8 @@ namespace Client
                         add_message(words[i]);
                     }
                 }
+                failed_attempts = 0;
+                retry_after = interval;
             }
             /*
             catch (Exception exept)
@@ -192,7 +197,7 @@ namespace Client
             {
                 if (exept.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    if (failed_attempts > 5)
+                    if (failed_attempts > 10)
                     {
                         if (!showing_message_box)
                         {
@@ -214,10 +219,43 @@ namespace Client
                     }
                     else
                     {
-                        interval += 200;
+                        retry_after += 200;
                     }
                     failed_attempts++;
                 }
+                else 
+                {
+                    MessageBox.Show("Error: " + exept.Message, "LOLSock!");
+                }
+            }
+            catch (IOException exept)
+            {
+
+                if (failed_attempts > 10)
+                {
+                    if (!showing_message_box)
+                    {
+                        timer_circles.Stop();
+                        timer_messages.Stop();
+                        showing_message_box = true;
+                        MessageBoxResult res = MessageBox.Show("Cannot establish a connection with server\nContinue?", "Error!", MessageBoxButton.YesNo);
+                        if (res == MessageBoxResult.No)
+                        {
+                            deactivate_game_screen();
+                        }
+                        else
+                        {
+                            timer_circles.Start();
+                            timer_messages.Start();
+                        }
+                        showing_message_box = false;
+                    }
+                }
+                else
+                {
+                    retry_after += 200;
+                }
+                failed_attempts++;
             }
             catch (Exception exept)
             {
@@ -227,7 +265,8 @@ namespace Client
                     MessageBox.Show("Error: " + exept.Message, "Error!");
                     showing_message_box = false;
                 }*/
-                MessageBox.Show("Error: " + exept.Message, "Error!");
+                MessageBox.Show("Error: " + exept.Message + '\n' + exept.GetType(), "LOLExeption!");
+                //System.IO.IOExeption
             }
         }
         void get_circles(object sender, EventArgs e)
@@ -242,6 +281,7 @@ namespace Client
                 client.Connect(IP, Convert.ToInt32(port));
                 data = Encoding.UTF8.GetBytes("GET_CIRCLES");
                 stream = client.GetStream();
+                stream.ReadTimeout = 100;
                 //сделать запрос
                 stream.Write(data, 0, data.Length);
                 response = "";
@@ -309,12 +349,14 @@ namespace Client
                         circles[i].Fill = new SolidColorBrush(Color.FromRgb(R, G, B));
                     }
                 }
+                failed_attempts = 0;
+                retry_after = interval;
             }
-            catch (SocketException exept) 
+            catch (SocketException exept)
             {
                 if (exept.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    if (failed_attempts > 5)
+                    if (failed_attempts > 10)
                     {
                         if (!showing_message_box)
                         {
@@ -334,12 +376,45 @@ namespace Client
                             showing_message_box = false;
                         }
                     }
-                    else 
+                    else
                     {
-                        interval += 200;
+                        retry_after += 200;
                     }
                     failed_attempts++;
                 }
+                else
+                {
+                    MessageBox.Show("Error: " + exept.SocketErrorCode, "LOLSock!");
+                }
+            }
+            catch (IOException exept) 
+            {
+                
+                if (failed_attempts > 10)
+                {
+                    if (!showing_message_box)
+                    {
+                        timer_circles.Stop();
+                        timer_messages.Stop();
+                        showing_message_box = true;
+                        MessageBoxResult res = MessageBox.Show("Cannot establish a connection with server\nContinue?", "Error!", MessageBoxButton.YesNo);
+                        if (res == MessageBoxResult.No)
+                        {
+                            deactivate_game_screen();
+                        }
+                        else
+                        {
+                            timer_circles.Start();
+                            timer_messages.Start();
+                        }
+                        showing_message_box = false;
+                    }
+                }
+                else
+                {
+                    retry_after += 200;
+                }
+                failed_attempts++;
             }
             catch (Exception exept)
             {
@@ -349,7 +424,7 @@ namespace Client
                     MessageBox.Show("Error: " + exept.Message, "Error!");
                     showing_message_box = false;
                 }*/
-                MessageBox.Show("Error: " + exept.Message, "Error!");
+                MessageBox.Show("Error: " + exept.Message + '\n' + exept.GetType(), "LOLEXE!");
             }
         }
         /*
@@ -423,6 +498,7 @@ namespace Client
                 return;
             }
             failed_attempts = 0;
+            retry_after = interval;
             //show(blue_dot);
             /*
             show(chat_label);
@@ -470,11 +546,11 @@ namespace Client
             timer2.Tick += get_circles;
             timer2.IsEnabled = true;*/
             //timer_circles = new DispatcherTimer();
-            timer_circles.Interval = new TimeSpan(0, 0, 0, 0, interval);
+            timer_circles.Interval = new TimeSpan(0, 0, 0, 0, retry_after);
             timer_circles.Tick += get_circles;
             timer_circles.IsEnabled = true;
             //timer_messages = new DispatcherTimer();
-            timer_messages.Interval = new TimeSpan(0, 0, 0, 0, interval);
+            timer_messages.Interval = new TimeSpan(0, 0, 0, 0, retry_after);
             timer_messages.Tick += get_messages;
             timer_messages.IsEnabled = true;
         }
