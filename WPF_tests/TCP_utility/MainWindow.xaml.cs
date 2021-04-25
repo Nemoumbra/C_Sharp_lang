@@ -17,7 +17,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Threading;
 
-namespace Client
+namespace WpfApplication
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
