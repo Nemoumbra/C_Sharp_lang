@@ -22,6 +22,45 @@ namespace Server
         TwoTeams,
         NoTeams
     }
+    class GameRules 
+    {
+        public GameMode game_mode;
+        public int coins_frequency;
+        public int participants_count;
+        //public int? 
+        public int time_limit;
+        public GameRules(string md, int c_frqnc, int part_c, int t_lim) 
+        {
+            if (md.Equals("NoTeams"))
+                game_mode = GameMode.NoTeams;
+            else 
+            {
+                if (md.Equals("TwoTeams"))
+                {
+                    game_mode = GameMode.TwoTeams;
+                }
+                else 
+                {
+                    //throw something
+                }
+            }
+            coins_frequency = c_frqnc;
+            participants_count = part_c;
+            time_limit = t_lim;
+        }
+    }
+    class ServerChatMessage 
+    {
+        public string message;
+        public string sender_name;
+        public string photo_id;
+        public ServerChatMessage(string msg, Player sender) 
+        {
+            message = msg;
+            sender_name = sender.name;
+            photo_id = "0";
+        }
+    }
     class Circling
     {
         public int x, y, d;
@@ -196,14 +235,34 @@ namespace Server
     class Player 
     {
         public string name;
+        public bool name_set;
         //public something related to an avatar
-        public int score;
+        public int? score;
         public Team team;
+        public Player() 
+        {
+            name = "";
+            name_set = false;
+            score = null;
+        }
+        public bool remove_from_team() 
+        {
+            if (team != null) 
+            {
+                return team.remove_player(this);
+            }
+            return false;
+        }
+        public bool participates() 
+        {
+            return team != null;
+        }
     }
     class Team 
     {
         public string name;
         public List<Player> participants;
+        public int required_number_of_players;
         public int players_count 
         {
             get 
@@ -216,9 +275,23 @@ namespace Server
             try
             {
                 participants.Add(pl);
+                pl.team = this;
                 return true;
             }
             catch (Exception exept) 
+            {
+                return false;
+            }
+        }
+        public bool remove_player(Player pl) 
+        {
+            try
+            {
+                participants.Remove(pl);
+                pl.team = null;
+                return true;
+            }
+            catch (Exception exept)
             {
                 return false;
             }
@@ -230,10 +303,19 @@ namespace Server
                 int res = 0;
                 foreach (Player pl in participants) 
                 {
-                    res += pl.score;
+                    res += pl.score.Value;
                 }
                 return res;
             }
+        }
+        public Team(int players_count) 
+        {
+            participants = new List<Player>();
+            required_number_of_players = players_count;
+        }
+        public bool is_full() 
+        {
+            return (required_number_of_players == participants.Count);
         }
     }
     class ServerPart
@@ -294,29 +376,44 @@ namespace Server
             }
         }
     }
+    class ReferenceableInteger 
+    {
+        public int value
+        {
+            get;
+            set;
+        }
+    }
     class MyClient2
     {
         public TcpClient client;
-        public List<string> chat;
-        public Dictionary<string, Circling> remotes;
+        public List<ServerChatMessage> chat;
+        //public Dictionary<string, Circling> remotes;
+        public Dictionary<string, Player> remotes;
+        public Dictionary<string, string> names;
         public Random rand;
-        int time_limit, frequency;
+        //int time_limit, frequency;
+        public GameRules rules;
         List<Team> teams;
-        GameMode mode;
+        //GameMode mode;
         State state;
         int timeout;
-        public MyClient2(ServerPart2 server_var, int t_out/*TcpListener server, List<string> game_chat, List<Circling> players, Random random*/)
+        string[] words;
+        NetworkStream stream;
+        ReferenceableInteger confirmed_participation;
+        public MyClient2(ServerPart2 server_var, int t_out)
         {
             client = server_var.server.AcceptTcpClient();
             chat = server_var.chat;
             remotes = server_var.remotes;
             rand = server_var.rand;
             teams = server_var.teams;
-            time_limit = server_var.time_limit;
-            frequency = server_var.frequency;
-            mode = server_var.mode;
+            rules = server_var.rules;
+            
             state = server_var.state;
             timeout = t_out;
+            names = server_var.names;
+            confirmed_participation = server_var.confirmed_participation;
         }
 
         public void send_data(NetworkStream stream, string message)
@@ -324,7 +421,6 @@ namespace Server
             byte[] buffer = Encoding.UTF8.GetBytes(message);
             stream.Write(buffer, 0, buffer.Length);
         }
-
         public string get_data(NetworkStream stream)
         {
             string message = "";
@@ -337,26 +433,240 @@ namespace Server
             while (stream.DataAvailable);
             return message;
         }
+        private string API_send_text() 
+        {
+            string ans;
+            if (remotes.Keys.Contains(words[1]))
+            {
+                //chat.Add(words[2]);
+                chat.Add(new ServerChatMessage(words[2], remotes[words[1]]));
+                ans = "OK!";
+            }
+            else 
+            {
+                ans = "Wrong request";
+            }
+            return ans;
+        }
+        private string API_reg_remote()
+        {
+            string ans;
+            if (state == State.PreGame)
+            {
+                ans = rand.Next(1000000).ToString();
+                remotes[ans] = new Player();
+                
+            }
+            else
+            {
+                ans = "NOT_PRE_GAME";
+            }
+            return ans;
+        }        
+        private string API_get_text()
+        {
+            string ans;
+            int N = Convert.ToInt32(words[1]);
+            if (N >= 0 && N <= chat.Count)
+            {
+                ans = (chat.Count - N).ToString();
+                for (int i = N; i < chat.Count; i++)
+                {
+                    ans += ":" + chat[i].message;
+                    ans += ":" + chat[i].sender_name;
+                    ans += ":" + chat[i].photo_id.ToString();
+                }
+            }
+            else 
+            {
+                ans = "Wrong request!";
+            }
+            return ans;
+        }
+        private string API_get_message()
+        {
+            string ans;
+            int N = Convert.ToInt32(words[1]);
+            if (N >= 0 && N < chat.Count)
+            {
+                ans = chat[N].message;
+                ans += ":" + chat[N].sender_name;
+                ans += ":" + chat[N].photo_id.ToString();
+            }
+            else 
+            {
+                ans = "Wrong request!";
+            }
+            return ans;
+        }
+        private string API_get_state()
+        {
+            string ans;
+            ans = state.ToString();
+            return ans;
+        }
+        private string API_get_rules()
+        {
+            string ans;
+            ans = rules.game_mode.ToString() + ":" + rules.time_limit.ToString();
+            ans += ":" + rules.coins_frequency.ToString() + ":" + rules.participants_count.ToString();
+            return "";
+        }
+        private string API_get_players_data()
+        {
+            return "";
+        }
+        private string API_set_name()
+        {
+            string ans;
+            if (state == State.PreGame && remotes.Keys.Contains(words[1]))
+            {
+                if (names.Values.Contains(words[2]) && !words[2].Equals(names[words[1]]))
+                {
+                    ans = "NAME_TAKEN";
+                }
+                else
+                {
+                    names[words[1]] = words[2];
+                    remotes[words[1]].name = words[2];
+                    remotes[words[1]].name_set = true;
+                    ans = "OK";
+                }
+            }
+            else 
+            {
+                ans = "Wrong request!";
+            }
+            return ans;
+        }
+        private string API_upload_photo()
+        {
+            return "";
+        }
+        private string API_download_photo()
+        {
+            return "";
+        }
+        private string API_confirm_participation()
+        {
+            string ans="";
+            if (state == State.PreGame)
+            {
+                if (!remotes[words[1]].name_set)
+                {
+                    ans = "NAME_NOT_SELECTED";
+                }
+                else
+                {
+                    if (rules.game_mode == GameMode.TwoTeams)
+                    {
+                        if (!teams[Convert.ToInt32(words[2])].is_full())
+                        {
+                            teams[Convert.ToInt32(words[2])].add_player(remotes[words[1]]);
+                            ans = "OK!";
+                        }
+                        else
+                        {
+                            ans = "TEAM_FULL";
+                        }
+                    }
+                    else
+                    {
+                        if (rules.game_mode == GameMode.NoTeams)
+                        {
+                            if (confirmed_participation.value <= rules.participants_count) // Принято решение, что не нужно делать ограничений на подключение.
+                            { // Пока игра ещё не началась, у всех есть шанс туда попасть.
+                                foreach (Team T in teams) //подыскиваем пустое место в списке команд
+                                {
+                                    if (T.players_count == 0)
+                                    {
+                                        T.add_player(remotes[words[1]]);
+                                        confirmed_participation.value++;
+                                        break;
+                                    }
+                                }
+                                ans = "OK!";
+                            }
+                            else
+                            {
+                                ans = "MAX_PLAYERS_LIMIT_REACHED";
+                            }
+                        }
+                        /*else
+                        {
+                            ans = "";// Вообще говоря, до этой ветви кода программа никогда не дойдёт. Это ужасно.
+                        }*/
+                    }
+                }
+            }
+            else 
+            {
+                ans = "NOT_PRE_GAME";
+            }
+            return ans;
+        }
+        private string API_get_game()
+        {
+            return "";
+        }
+        private string API_get_results()
+        {
+            return "";
+        }
+        private string API_move_player()
+        {
+            return "";
+        }
+        private string API_unreg_remote()
+        {
+            string ans;
+            if (state == State.PreGame && remotes.Keys.Contains(words[1]))
+            {
+                if (names.Keys.Contains(words[1])) 
+                {
+                    names.Remove(words[1]);
+                }
+                if (remotes[words[1]].participates()) 
+                {
+                    confirmed_participation.value--;
+                }
+                remotes[words[1]].remove_from_team(); //если он отсутствует в командах, код не ломается
+                remotes.Remove(words[1]);
+                ans = "OK!";
+            }
+            else 
+            {
+                ans = "Wrong request!";
+            }
+            return ans;
+        }
+
         public void deal_with_client()
         {
+            //сразу отсеивать тех, кто подключается в момент NoGame!
             try
             {
-                NetworkStream stream = client.GetStream();
+                stream = client.GetStream();
                 stream.ReadTimeout = timeout;
                 string message = "", response = "";
                 message = get_data(stream);
-                string[] words = message.Split(':');
+                words = message.Split(':');
                 //Здесь всё надо всё перепиcать на switch-case и каждый вариант сделать своей функцией
                 if (words[0].Equals("SEND_TEXT"))
                 {
                     if (remotes.Keys.Contains(words[1]))
                     {
-                        chat.Add(words[2]);
-                        send_data(stream, "OK");
-                        stream.Close();
-                        client.Close();
-                        return;
+                        chat.Add(new ServerChatMessage(words[2], remotes[words[1]]));
+                        response = "OK!";
                     }
+                    else
+                    {
+                        response = "Wrong request";
+                    }
+                    send_data(stream, response);
+                    stream.Close();
+                    client.Close();
+                    return;
                 }
                 if (words[0].Equals("REG_REMOTE"))
                 {
@@ -368,6 +678,19 @@ namespace Server
                     client.Close();
                     return;
                     */
+                    if (state == State.PreGame)
+                    {
+                        response = rand.Next(1000000).ToString();
+                        remotes[response] = new Player();
+                    }
+                    else 
+                    {
+                        response = "NOT_PRE_GAME";
+                    }
+                    send_data(stream, response);
+                    stream.Close();
+                    client.Close();
+                    return;
                 }
                 if (words[0].Equals("GET_TEXT"))
                 {
@@ -377,7 +700,9 @@ namespace Server
                         response = (chat.Count - N).ToString();
                         for (int i = N; i < chat.Count; i++)
                         {
-                            response += ":" + chat[i];
+                            response += ":" + chat[i].message;
+                            response += ":" + chat[i].sender_name;
+                            response += ":" + chat[i].photo_id.ToString();
                         }
                         send_data(stream, response);
                         stream.Close();
@@ -390,7 +715,9 @@ namespace Server
                     int N = Convert.ToInt32(words[1]);
                     if (N >= 0 && N < chat.Count)
                     {
-                        response = chat[N];
+                        response = chat[N].message;
+                        response += ":" + chat[N].sender_name;
+                        response += ":" + chat[N].photo_id.ToString();
                         send_data(stream, response);
                         stream.Close();
                         client.Close();
@@ -413,7 +740,8 @@ namespace Server
                 */
                 if (words[0].Equals("GET_RULES"))
                 {
-                    response = "OK";
+                    response = rules.game_mode.ToString() + ":" + rules.time_limit.ToString();
+                    response += ":" + rules.coins_frequency.ToString() + ":" + rules.participants_count.ToString();
                     send_data(stream, response);
                     stream.Close();
                     client.Close();
@@ -429,7 +757,24 @@ namespace Server
                 }
                 if (words[0].Equals("SET_NAME"))
                 {
-
+                    if (remotes.Keys.Contains(words[1])) 
+                    {
+                        if (names.Values.Contains(words[2]) && !words[2].Equals(names[words[1]]))
+                        {
+                            response = "NAME_TAKEN";
+                        }
+                        else 
+                        {
+                            names[words[1]] = words[2];
+                            remotes[words[1]].name = words[2];
+                            remotes[words[1]].name_set = true;
+                            response = "OK!";
+                        }
+                        send_data(stream, response);
+                        stream.Close();
+                        client.Close();
+                        return;
+                    }
                 }
                 if (words[0].Equals("UPLOAD_PHOTO"))
                 {
@@ -449,7 +794,53 @@ namespace Server
                 }
                 if (words[0].Equals("CONFIRM_PARTICIPATION"))
                 {
-                    response = "OK";
+                    
+                    if (!remotes[words[1]].name_set)
+                    {
+                        response = "NAME_NOT_SELECTED";
+                    }
+                    else
+                    {
+                        if (rules.game_mode == GameMode.TwoTeams)
+                        {
+                            if (!teams[Convert.ToInt32(words[2])].is_full())
+                            {
+                                teams[Convert.ToInt32(words[2])].add_player(remotes[words[1]]);
+                                response = "OK!";
+                            }
+                            else
+                            {
+                                response = "TEAM_FULL";
+                            }
+                        }
+                        else
+                        {
+                            if (rules.game_mode == GameMode.NoTeams)
+                            {
+                                if (confirmed_participation.value <= rules.participants_count)
+                                {
+                                    foreach (Team T in teams) //подыскиваем пустое место в списке команд
+                                    {
+                                        if (T.players_count == 0)
+                                        {
+                                            T.add_player(remotes[words[1]]);
+                                            confirmed_participation.value++;
+                                            break;
+                                        }
+                                    }
+                                    response = "OK!";
+                                }
+                                else
+                                {
+                                    response = "MAX_PLAYERS_LIMIT_REACHED";
+                                }
+                            }
+                            else
+                            {
+                                response = "";// Вообще говоря, до этой ветви кода программа никогда не дойдёт. Это ужасно.
+                            }
+                        }
+                    }
                     send_data(stream, response);
                     stream.Close();
                     client.Close();
@@ -481,7 +872,24 @@ namespace Server
                 }
                 if (words[0].Equals("UNREG_REMOTE")) 
                 {
-                    response = "OK";
+                    if (remotes.Keys.Contains(words[1]))
+                    {
+                        if (names.Keys.Contains(words[1]))
+                        {
+                            names.Remove(words[1]);
+                        }
+                        if (remotes[words[1]].participates())
+                        {
+                            confirmed_participation.value--;
+                        }
+                        remotes[words[1]].remove_from_team(); //если он отсутствует в командах, код не ломается
+                        remotes.Remove(words[1]);
+                        response = "OK!";
+                    }
+                    else
+                    {
+                        response = "Wrong request!";
+                    }
                     send_data(stream, response);
                     stream.Close();
                     client.Close();
@@ -552,6 +960,102 @@ namespace Server
                 send_data(stream, "Wrong request!");
                 stream.Close();
                 client.Close();
+                /*
+                 * Вот здесь у нас будет switch-case с функциями
+                */
+                /*if (state == State.NoGame)
+                {
+                    response = "NO_GAME";
+                }
+                else
+                {
+                    switch (words[1])
+                    {
+                        case "SEND_TEXT":
+                            {
+                                response = API_send_text();
+                                break;
+                            }
+                        case "REG_REMOTE":
+                            {
+                                response = API_reg_remote();
+                                break;
+                            }
+                        case "GET_TEXT":
+                            {
+                                response = API_get_text();
+                                break;
+                            }
+                        case "GET_MESSAGE":
+                            {
+                                response = API_get_message();
+                                break;
+                            }
+                        case "GET_STATE":
+                            {
+                                response = API_get_state();
+                                break;
+                            }
+                        case "GET_RULES":
+                            {
+                                response = API_get_rules();
+                                break;
+                            }
+                        case "GET_PLAYERS_DATA":
+                            {
+                                response = API_get_players_data();
+                                break;
+                            }
+                        case "SET_NAME":
+                            {
+                                response = API_set_name();
+                                break;
+                            }
+                        case "CONFIRM_PARTICIPATION":
+                            {
+                                response = API_confirm_participation();
+                                break;
+                            }
+                        case "UPLOAD_PHOTO":
+                            {
+                                response = API_upload_photo();
+                                break;
+                            }
+                        case "DOWNLOAD_PHOTO":
+                            {
+                                response = API_download_photo();
+                                break;
+                            }
+                        case "GET_GAME":
+                            {
+                                response = API_get_game();
+                                break;
+                            }
+                        case "GET_RESULTS":
+                            {
+                                response = API_get_results();
+                                break;
+                            }
+                        case "MOVE_PLAYER":
+                            {
+                                response = API_move_player();
+                                break;
+                            }
+                        case "UNREG_REMOTE":
+                            {
+                                response = API_unreg_remote();
+                                break;
+                            }
+                        default:
+                            {
+                                response = "Wrong request!";
+                                break;
+                            }
+                    }
+                    //send_data(stream, response);
+                    //client.Close();
+                    //stream.Close();
+                }*/
             }
             catch (Exception exept)
             {
@@ -561,15 +1065,15 @@ namespace Server
     }
     class ServerPart2 
     {
-        public TcpListener server;
-        //public TcpClient client;
-        public List<string> chat;
-        public Dictionary<string, Circling> remotes;
+        public TcpListener server; 
+        public List<ServerChatMessage> chat;
+        public Dictionary<string, Player> remotes;
         public Random rand;
         public State state;
-        public int time_limit, frequency;
-        public GameMode mode;
         public List<Team> teams;
+        public Dictionary<string, string> names;
+        public GameRules rules;
+        public ReferenceableInteger confirmed_participation;
         public ServerPart2(string ip, int port)
         {
             try
@@ -586,32 +1090,64 @@ namespace Server
                 return;
             }
         }
-        public void Initialize(int seed, int time, int frnqcy, GameMode md) 
+        /*
+        public void Initialize(int seed, GameRules rls) 
         {
             chat = new List<string>();
-            remotes = new Dictionary<string, Circling>();
+            remotes = new Dictionary<string, Player>();
             rand = new Random(seed);
-            mode = md;
-            time_limit = time;
-            frequency = frnqcy;
+            rules = rls;
             teams = new List<Team>();
-        }
+            names = new Dictionary<string, string>();
+        }*/
         public void process_requests()
         {
+            int temp_counter=0;
             while (true)
             {
                 try
                 {
-                    if (state != State.NoGame)
+                    if (server.Pending())
                     {
-                        if (server.Pending())
+                        MyClient2 client = new MyClient2(this, 10000);
+                        Thread client_thread = new Thread(client.deal_with_client);
+                        client_thread.Start();
+                    }
+                    
+                    if (state == State.PreGame)
+                    {
+                        if (rules.game_mode == GameMode.TwoTeams)
                         {
-                            MyClient2 client = new MyClient2(this, 10000);
-                            Thread client_thread = new Thread(client.deal_with_client);
-                            client_thread.Start();
+                            // Проверить, не заполнены ли команды
+                            if (teams[0].is_full() && teams[1].is_full()) 
+                            {
+                                temp_counter++;
+                                if (temp_counter > 100) 
+                                {
+                                    state = State.Game;
+                                    temp_counter = 0;
+                                    Console.WriteLine("lol");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (rules.game_mode == GameMode.NoTeams)
+                            {
+                                // Проверить, не все ли зарегистрированные игроки подтвердили участие
+                                if (remotes.Count != 0 && confirmed_participation.value == remotes.Count) 
+                                {
+                                    temp_counter++;
+                                    if (temp_counter > 100)
+                                    {
+                                        state = State.Game;
+                                        temp_counter = 0;
+                                    }
+                                }
+                            }
                         }
                     }
-                    Thread.Sleep(40);
+                    Thread.Sleep(30);
                 }
                 catch (Exception exept)
                 {
@@ -619,13 +1155,46 @@ namespace Server
                 }
             }
         }
+        public void start_new_game(int seed, GameRules rls) 
+        {
+            chat = new List<ServerChatMessage>();
+            remotes = new Dictionary<string, Player>();
+            rand = new Random(seed);
+            rules = rls;
+            teams = new List<Team>();
+            if (rules.game_mode == GameMode.TwoTeams)
+            {
+                teams.Add(new Team(rules.participants_count));
+                teams.Add(new Team(rules.participants_count));
+            }
+            else 
+            {
+                if (rules.game_mode == GameMode.NoTeams) 
+                {
+                    for (int i = 0; i < rules.participants_count; i++) 
+                    {
+                        teams.Add(new Team(1));
+                    }
+                }
+            }
+            
+            names = new Dictionary<string, string>();
+            state = State.PreGame;
+            confirmed_participation = new ReferenceableInteger();
+            confirmed_participation.value = 0;
+        }
+
+        public void stop_current_game() 
+        {
+
+        }
     }
 
     class Program
     {
-        public static string IP = "";
-        public static string port = "";
-
+        public static string IP = "", port = "", frequency = "", game_mode = "";
+        public static string time_limit = "", participants = "";
+        public static string user_input = "";
         static void collect_ip_and_port() 
         {
             Console.WriteLine("Please enter the IP address or press enter to skip this step");
@@ -643,13 +1212,41 @@ namespace Server
                 Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 1);
             }
         }
+        static bool collect_game_rules() 
+        {
+            Console.WriteLine("Please enter the frequency which will define how often a new coin will be generated during the game");
+            frequency = Console.ReadLine();
+            Console.WriteLine("Please enter the GameMode parameter (either NoTeams or TwoTeams)");
+            game_mode = Console.ReadLine();
+            if (game_mode.Equals("NoTeams")) 
+            {
+                Console.WriteLine("Please enter the limit on players (maximum number of participants)");
+                participants = Console.ReadLine();
+            }
+            else if (game_mode.Equals("TwoTeams"))
+            {
+                Console.WriteLine("Please enter how many players are in each team (two teams have the same number of participants)");
+                participants = Console.ReadLine();
+            }
+            else 
+            {
+                Console.WriteLine("Wrong GameMode!");
+                //restart game
+                return false;
+            }
+            Console.WriteLine("Please enter the time limit which will define how long will the game last");
+            time_limit = Console.ReadLine();
+            return true;
+        }
         static void Main(string[] args)
         {
+            /*
             if (args.Length != 0) 
             {
                 Console.WriteLine("Command line arguments are not supported yet");
                 return;
             }
+            */
             Console.WriteLine("Program started");
             if (!File.Exists("Settings.txt"))
             {
@@ -692,11 +1289,40 @@ namespace Server
              * $ Игры нет -> ввод настроек -> настройки введены ->
              * -> запустить игру -> прервать игру -> goto $
             */
+            
             ServerPart2 server = new ServerPart2(IP, Convert.ToInt32(port));
+            while (true) 
+            {
+                user_input = Console.ReadLine();
+                if (server.state == State.NoGame && user_input.Equals("Start game"))
+                {
+                    if (!collect_game_rules()) 
+                    {
+                        continue;
+                    }
+                    GameRules game_rules = new GameRules(game_mode, Convert.ToInt32(frequency), Convert.ToInt32(participants), Convert.ToInt32(time_limit));
+                    server.start_new_game(128, game_rules);
+                    Thread server_thread = new Thread(server.process_requests);
+                    server_thread.Start();
+                    //или запихнуть запуск потока в server.start_new_game
+                }
+                else
+                {
+                    if (server.state != State.NoGame && user_input.Equals("Stop game"))
+                    {
+                        server.stop_current_game();
+                    }
+                    else 
+                    {
+                        Console.WriteLine("Wrong command!");
+                    }
+                }
+            }
+            /*collect_game_rules();
             server.Initialize(128, 10000, 10, GameMode.NoTeams);
-            server.state = State.PostGame;
+            server.state = State.PreGame;
             Thread server_thread = new Thread(server.process_requests);
-            server_thread.Start();
+            server_thread.Start();*/
         }
     }
 }
