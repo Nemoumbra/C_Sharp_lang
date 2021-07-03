@@ -92,7 +92,18 @@ namespace Client_prime
             circles.Clear();
             listbox_msg.Items.Clear();
         }
-        
+        void goto_pre_game() 
+        {
+
+        }
+        void goto_game() 
+        {
+
+        }
+        void goto_post_game() 
+        {
+            
+        }
         void get_messages(object sender, EventArgs e)
         {
             TcpClient client = new TcpClient();
