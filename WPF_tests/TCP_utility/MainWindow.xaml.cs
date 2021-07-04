@@ -86,9 +86,12 @@ namespace WpfApplication
                 client.Connect(server_ip, port);
 
                 NetworkStream stream = client.GetStream();
-                stream.ReadTimeout = 1000;
+                stream.ReadTimeout = Convert.ToInt32(timeout_textbox.Text);
                 message = Sender_button.Text;
-                manage_requests(message);
+                if (save_request_checkbox.IsChecked == true) 
+                {
+                    manage_requests(message);
+                }
                 byte[] data = Encoding.UTF8.GetBytes(message);
                 /*if (checkBox2.IsChecked == false)
                 {
@@ -135,7 +138,10 @@ namespace WpfApplication
                 client = new TcpClient();
                 client.Connect(server_ip, port);
                 NetworkStream stream = client.GetStream();
-                manage_requests(message);
+                if (save_request_checkbox.IsChecked == true)
+                {
+                    manage_requests(message);
+                }
                 byte[] data = Encoding.UTF8.GetBytes(message);
                 stream.Write(data, 0, data.Length);
                 response = "";
