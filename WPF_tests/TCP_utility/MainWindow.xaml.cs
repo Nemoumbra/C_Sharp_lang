@@ -16,6 +16,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Threading;
+using System.IO;
 
 namespace WpfApplication
 {
@@ -35,12 +36,20 @@ namespace WpfApplication
             InitializeComponent();
             active = false;
             timer = new DispatcherTimer();
+            if (File.Exists("used_commands.txt")) 
+            {
+                string[] arr = File.ReadAllLines("used_commands.txt");
+                for (int i = 0; i < arr.Length; i++) 
+                {
+                    manage_requests(arr[i]);
+                }
+            }
         }
-        public void hide(UIElement elem) 
+        public void hide(UIElement elem)
         {
             elem.Visibility = Visibility.Hidden;
         }
-        public void show(UIElement elem) 
+        public void show(UIElement elem)
         {
             elem.Visibility = Visibility.Visible;
         }
@@ -187,7 +196,7 @@ namespace WpfApplication
                 show(textBlock2);
                 show(textBox2);
             }
-            if (Poller_radiobutton.IsChecked == true) 
+            if (Poller_radiobutton.IsChecked == true)
             {
                 show(textBox3);
                 show(textBlock3);
@@ -203,7 +212,7 @@ namespace WpfApplication
             hide(Auto_Button);
             hide(Poller_radiobutton);
             hide(DOS_radiobutton);
-            if (DOS_radiobutton.IsChecked == true) 
+            if (DOS_radiobutton.IsChecked == true)
             {
                 hide(textBlock2);
                 hide(textBox2);
@@ -215,9 +224,9 @@ namespace WpfApplication
             }
             //Button.Click += Button_Click;
         }
-        private void DOS() 
+        private void DOS()
         {
-            while (active) 
+            while (active)
             {
                 try
                 {
@@ -235,7 +244,7 @@ namespace WpfApplication
                 }
             }
         }
-        private void Auto_Button_Click(object sender, RoutedEventArgs e) 
+        private void Auto_Button_Click(object sender, RoutedEventArgs e)
         {
             if (!active)
             {
@@ -259,7 +268,7 @@ namespace WpfApplication
                         N = Convert.ToInt32(textBox3.Text);
                         timer.Interval = new TimeSpan(0, 0, 0, 0, N);
                         timer.Tick += Polling;
-                        
+
                         timer.Start();
                     }
                     catch (Exception exept)
@@ -284,11 +293,11 @@ namespace WpfApplication
                         MessageBox.Show(exept.Message, "Error!");
                     }
                 }
-                
+
             }
-            else 
+            else
             {
-                if (timer.IsEnabled == true) 
+                if (timer.IsEnabled == true)
                 {
                     timer.Stop();
                 }
@@ -330,6 +339,16 @@ namespace WpfApplication
             hide(textBlock3);
             hide(textBox3);
         }
+
+        private void save_button_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> arr = new List<string>();
+            foreach (object item in comboBox1.Items) 
+            {
+                arr.Add(item.ToString());
+            }
+            File.WriteAllLines("used_commands.txt", arr);
+        }
         /*
         private void Poller_checkbox_Checked(object sender, RoutedEventArgs e)
         {
@@ -355,4 +374,3 @@ namespace WpfApplication
         */
     }
 }
-
