@@ -9,18 +9,18 @@
     <Grid>
         <TextBox x:Name="Sender_button" HorizontalAlignment="Left" Height="105" Margin="84,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="387"/>
         <TextBox x:Name="Receiver_button" HorizontalAlignment="Left" Height="103" Margin="84,286,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="608"/>
-        <Button Content="Подключиться и отправить текст" HorizontalAlignment="Left" Height="67" Margin="285,171,0,0" VerticalAlignment="Top" Width="252" Click="Button_Click" Name="Button" />
-        <Label Content="IP" Height="28" HorizontalAlignment="Left" Margin="609,156,0,0" Name="label1" VerticalAlignment="Top" IsEnabled="False" />
-        <TextBox Height="46" HorizontalAlignment="Left" Margin="577,192,0,0" Name="IPTextBox" VerticalAlignment="Top" Width="81" Text="192.168." IsEnabled="False" />
-        <CheckBox Content="LocalHost" Height="16" HorizontalAlignment="Left" Margin="629,244,0,0" Name="checkBox1" VerticalAlignment="Top" IsChecked="True" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" />
-        <Label Content="PORT" Height="28" HorizontalAlignment="Left" Margin="697,156,0,0" Name="label2" VerticalAlignment="Top" />
-        <TextBox Height="46" HorizontalAlignment="Left" Margin="681,192,0,0" Name="PortTextBox" VerticalAlignment="Top" Width="69" Text="8888" />
+        <Button Content="Подключиться и отправить текст" HorizontalAlignment="Left" Height="67" Margin="225,171,0,0" VerticalAlignment="Top" Width="252" Click="Button_Click" Name="Button" />
+        <Label Content="IP" Height="28" HorizontalAlignment="Left" Margin="549,156,0,0" Name="label1" VerticalAlignment="Top" IsEnabled="False" />
+        <TextBox Height="46" HorizontalAlignment="Left" Margin="517,192,0,0" Name="IPTextBox" VerticalAlignment="Top" Width="81" Text="192.168." IsEnabled="False" />
+        <CheckBox Content="LocalHost" Height="16" HorizontalAlignment="Left" Margin="569,244,0,0" Name="checkBox1" VerticalAlignment="Top" IsChecked="True" Checked="checkBox1_Checked" Unchecked="checkBox1_Unchecked" />
+        <Label Content="PORT" Height="28" HorizontalAlignment="Left" Margin="632,156,0,0" Name="label2" VerticalAlignment="Top" />
+        <TextBox Height="46" HorizontalAlignment="Left" Margin="616,192,0,0" Name="PortTextBox" VerticalAlignment="Top" Width="69" Text="8888" />
         <ComboBox Height="22" HorizontalAlignment="Left" Margin="509,25,0,0" Name="comboBox1" VerticalAlignment="Top" Width="218" IsEditable="False" IsReadOnly="True" SelectionChanged="comboBox1_SelectionChanged" />
-        <CheckBox Content="Замедляем отправку" Height="16" HorizontalAlignment="Left" Margin="84,161,0,0" Name="checkBox2" VerticalAlignment="Top" Checked="checkBox2_Checked" Unchecked="checkBox2_Unchecked" Visibility="Visible" />
-        <Label Content="Интервал (мс)" Height="28" HorizontalAlignment="Left" Margin="99,183,0,0" Name="label3" VerticalAlignment="Top" IsEnabled="False" Visibility="Visible" />
-        <TextBox Height="39" HorizontalAlignment="Left" Margin="99,221,0,0" Name="textBox1" VerticalAlignment="Top" Width="83" Text="100" IsEnabled="False" Visibility="Visible" />
-        <CheckBox Content="Автоматические запросы" Height="24" HorizontalAlignment="Left" Margin="336,249,0,0" Name="Auto_checkbox" VerticalAlignment="Top" Width="164" Checked="Auto_checkbox_Checked" Unchecked="Auto_checkbox_Unchecked" />
-        <Button Content="Запустить/остановить систему" Height="67" HorizontalAlignment="Left" Margin="285,171,0,0" Name="Auto_Button" VerticalAlignment="Top" Width="252" Visibility="Hidden" Click="Auto_Button_Click"/>
+        <CheckBox Content="Замедляем отправку" Height="16" HorizontalAlignment="Left" Margin="64,161,0,0" Name="checkBox2" VerticalAlignment="Top" Checked="checkBox2_Checked" Unchecked="checkBox2_Unchecked" Visibility="Visible" />
+        <Label Content="Интервал (мс)" Height="28" HorizontalAlignment="Left" Margin="79,183,0,0" Name="label3" VerticalAlignment="Top" IsEnabled="False" Visibility="Visible" />
+        <TextBox Height="39" HorizontalAlignment="Left" Margin="79,221,0,0" Name="textBox1" VerticalAlignment="Top" Width="83" Text="100" IsEnabled="False" Visibility="Visible" />
+        <CheckBox Content="Автоматические запросы" Height="24" HorizontalAlignment="Left" Margin="276,145,0,0" Name="Auto_checkbox" VerticalAlignment="Top" Width="164" Checked="Auto_checkbox_Checked" Unchecked="Auto_checkbox_Unchecked" />
+        <Button Content="Запустить/остановить систему" Height="67" HorizontalAlignment="Left" Margin="225,171,0,0" Name="Auto_Button" VerticalAlignment="Top" Width="252" Visibility="Hidden" Click="Auto_Button_Click"/>
         <TextBlock Height="23" HorizontalAlignment="Left" Margin="251,7,0,0" Name="textBlock1" Text="Запрос" VerticalAlignment="Top" Width="45" />
         <RadioButton Content="Повторяющийся запрос" Height="16" HorizontalAlignment="Left" Margin="24,161,0,0" Name="Poller_radiobutton" VerticalAlignment="Top" GroupName="Auto" IsChecked="True" Checked="Poller_radiobutton_Checked" Visibility="Hidden" Unchecked="Poller_radiobutton_Unchecked" />
         <RadioButton Content="Многопоточная атака" Height="16" HorizontalAlignment="Left" Margin="24,183,0,0" Name="DOS_radiobutton" VerticalAlignment="Top" GroupName="Auto" Checked="DOS_radiobutton_Checked" Visibility="Hidden" Unchecked="DOS_radiobutton_Unchecked" />
@@ -29,6 +29,9 @@
         <TextBlock Height="23" HorizontalAlignment="Left" Margin="24,205,0,0" Name="textBlock3" Text="Интервал (ms)" VerticalAlignment="Top" Visibility="Hidden" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="24,225,0,0" Name="textBox3" VerticalAlignment="Top" Width="120" Text="100" Visibility="Hidden" />
         <Button Content="Сохранить список" Height="35" HorizontalAlignment="Left" Margin="554,63,0,0" VerticalAlignment="Top" Width="134" Name="save_button" Click="save_button_Click" />
+        <CheckBox Content="Запомнить текущий запрос" Height="16" HorizontalAlignment="Left" Margin="276,252,0,0" Name="save_request_checkbox" VerticalAlignment="Top" IsChecked="True" />
+        <TextBox Height="46" HorizontalAlignment="Left" Margin="701,192,0,0" Name="timeout_textbox" VerticalAlignment="Top" Width="57" Text="1000" />
+        <Label Content="Timeout (ms)" Height="28" HorizontalAlignment="Left" Margin="690,156,0,0" Name="label4" VerticalAlignment="Top" />
         <!--<CheckBox Content="Многопоточная атака" Height="16" HorizontalAlignment="Left" Margin="39,156,0,0" Name="DOS_checkbox" VerticalAlignment="Top" IsEnabled="False" Checked="DOS_checkbox_Checked" Unchecked="DOS_checkbox_Unchecked" />
         <CheckBox Content="Повторяющийся запрос (polling)" Height="16" HorizontalAlignment="Left" Margin="39,192,0,0" Name="Poller_checkbox" VerticalAlignment="Top" IsChecked="True" Checked="Poller_checkbox_Checked" Unchecked="Poller_checkbox_Unchecked" />-->
     </Grid>
