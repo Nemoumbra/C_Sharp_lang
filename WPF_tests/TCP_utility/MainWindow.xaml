@@ -28,7 +28,9 @@
         <TextBox Height="23" HorizontalAlignment="Left" Margin="24,225,0,0" Name="textBox2" VerticalAlignment="Top" Width="120" Text="1" Visibility="Hidden" />
         <TextBlock Height="23" HorizontalAlignment="Left" Margin="24,205,0,0" Name="textBlock3" Text="Интервал (ms)" VerticalAlignment="Top" Visibility="Hidden" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="24,225,0,0" Name="textBox3" VerticalAlignment="Top" Width="120" Text="100" Visibility="Hidden" />
+        <Button Content="Сохранить список" Height="35" HorizontalAlignment="Left" Margin="554,63,0,0" VerticalAlignment="Top" Width="134" Name="save_button" Click="save_button_Click" />
         <!--<CheckBox Content="Многопоточная атака" Height="16" HorizontalAlignment="Left" Margin="39,156,0,0" Name="DOS_checkbox" VerticalAlignment="Top" IsEnabled="False" Checked="DOS_checkbox_Checked" Unchecked="DOS_checkbox_Unchecked" />
         <CheckBox Content="Повторяющийся запрос (polling)" Height="16" HorizontalAlignment="Left" Margin="39,192,0,0" Name="Poller_checkbox" VerticalAlignment="Top" IsChecked="True" Checked="Poller_checkbox_Checked" Unchecked="Poller_checkbox_Unchecked" />-->
     </Grid>
 </Window>
+
