@@ -85,8 +85,8 @@ namespace WpfApplication
                 port = Convert.ToInt32(PortTextBox.Text);
                 client.Connect(server_ip, port);
 
-
                 NetworkStream stream = client.GetStream();
+                stream.ReadTimeout = 1000;
                 message = Sender_button.Text;
                 manage_requests(message);
                 byte[] data = Encoding.UTF8.GetBytes(message);
@@ -118,6 +118,10 @@ namespace WpfApplication
                 stream.Close();
                 client.Close();
                 Sender_button.Text = "";
+            }
+            catch (IOException exept) 
+            {
+                MessageBox.Show(exept.Message);
             }
             catch (Exception exept)
             {
