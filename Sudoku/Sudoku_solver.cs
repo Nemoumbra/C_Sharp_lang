@@ -23,17 +23,33 @@ namespace Sudoku
         private SortedSet<int> basic_set;
         public Sudoku_solver() 
         {
-            sudoku_matrix = new List<List<Square>>(9);
+            sudoku_matrix = new List<List<Square>>();
             for (int i = 0; i < 9; i++) 
             {
-                sudoku_matrix[i] = new List<Square>(9);
+                sudoku_matrix.Add(new List<Square>());
                 for (int j = 0; j < 9; j++) 
                 {
-                    sudoku_matrix[i][j] = new Square(i, j);
+                    sudoku_matrix[i].Add(new Square(i, j));
                 }
             }
             basic_set = new SortedSet<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         }
+        /*public int get_square(int i, int j) 
+        {
+            return sudoku_matrix[i][j].data;
+        }*/
+        public int this[int i, int j] 
+        {
+            get 
+            {
+                return sudoku_matrix[i][j].data;
+            }
+            set 
+            {
+                sudoku_matrix[i][j].data = value;
+            }
+        }
+        
         public SortedSet<Square> get_zeros_row(int n) 
         {
             SortedSet<Square> res = new SortedSet<Square>();
@@ -173,15 +189,15 @@ namespace Sudoku
         
         public bool is_row_finished(int n) 
         {
-            return present_in_row(n) == basic_set;
+            return absent_in_row(n) == basic_set;
         }
         public bool is_column_finished(int n)
         {
-            return present_in_column(n) == basic_set;
+            return absent_in_column(n) == basic_set;
         }
         public bool is_square_finished(int n)
         {
-            return present_in_square(n) == basic_set;
+            return absent_in_square(n) == basic_set;
         }
         public bool confirm_changes() 
         {
@@ -236,6 +252,9 @@ namespace Sudoku
                         sudoku_matrix[n][s.x].possible.Remove(digit);
                         changed = true;
                     }
+                    /*У меня есть идея: если во всех пустых клетках, кроме одной,
+                     не может быть какой-то отсутствующей цифры, то эту цифру нужно 
+                     выставить в данную клетку (например, подкорректировать ей possible)*/
                 }
             }
             return changed;
@@ -328,6 +347,83 @@ namespace Sudoku
                 }
             }
             return changed;
+        }
+        public int count_digit_row(int n, int digit) 
+        {
+            int counter = 0;
+            for (int j = 0; j < 9; j++) 
+            {
+                if (sudoku_matrix[n][j].data == digit) 
+                {
+                    counter++;
+                }
+            }
+            return counter;
+        }
+        public int count_digit_column(int n, int digit)
+        {
+            int counter = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                if (sudoku_matrix[i][n].data == digit)
+                {
+                    counter++;
+                }
+            }
+            return counter;
+        }
+        public int count_digit_square(int n, int digit) 
+        {
+            int a = n / 3, b = n % 3;
+            int counter = 0;
+            for (int i = 3 * a; i < 3 * a + 3; i++) 
+            {
+                for (int j = 3 * b; j < 3 * b + 3; j++) 
+                {
+                    if (sudoku_matrix[i][j].data == digit) 
+                    {
+                        counter++;
+                    }
+                }
+            }
+            return counter;
+        }
+        public bool is_row_contradictive(int n) 
+        {
+            return !basic_set.All(digit => count_digit_row(n, digit) <= 1);
+        }
+        public bool is_column_contradictive(int n)
+        {
+            return !basic_set.All(digit => count_digit_column(n, digit) <= 1);
+        }
+        public bool is_square_contradictive(int n) 
+        {
+            return !basic_set.All(digit => count_digit_square(n, digit) <= 1);
+        }
+        public bool is_contradictive()
+        {
+            for (int i = 0; i < 9; i++) 
+            {
+                if (is_row_contradictive(i)) 
+                {
+                    return true;
+                }
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                if (is_column_contradictive(i))
+                {
+                    return true;
+                }
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                if (is_square_contradictive(i))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
