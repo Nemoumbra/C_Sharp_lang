@@ -14,7 +14,7 @@ namespace Sudoku
             this.x = x;
             this.y = y;
             data = 0;
-            possible = new SortedSet<int>();
+            possible = new SortedSet<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //Временно, вроде бы
         }
     }
     class Sudoku_solver
@@ -189,15 +189,15 @@ namespace Sudoku
         
         public bool is_row_finished(int n) 
         {
-            return absent_in_row(n) == basic_set;
+            return present_in_row(n).SequenceEqual(basic_set);
         }
         public bool is_column_finished(int n)
         {
-            return absent_in_column(n) == basic_set;
+            return present_in_column(n).SequenceEqual(basic_set);
         }
         public bool is_square_finished(int n)
         {
-            return absent_in_square(n) == basic_set;
+            return present_in_square(n).SequenceEqual(basic_set);
         }
         public bool confirm_changes() 
         {
@@ -425,5 +425,40 @@ namespace Sudoku
             }
             return false;
         }
-    }
+        public void solve_sudoku() 
+        {
+            bool flag1 = true, flag2 = true;
+            while (flag1 || flag2) 
+            {
+                flag1 = false;
+                flag2 = false;
+
+                for (int i = 0; i < 9; i++) 
+                {
+                    if (!is_row_finished(i)) 
+                    {
+                        flag1 = flag1 || do_row(i);
+                    }
+                }
+                flag2 = flag2 || confirm_changes();
+
+                for (int i = 0; i < 9; i++)
+                {
+                    if (!is_column_finished(i))
+                    {
+                        flag1 = flag1 || do_column(i);
+                    }
+                }
+                flag2 = flag2 || confirm_changes();
+                for (int i = 0; i < 9; i++)
+                {
+                    if (!is_square_finished(i))
+                    {
+                        flag1 = flag1 || do_square(i);
+                    }
+                }
+                flag2 = flag2 || confirm_changes();
+            }
+        }
+    }   
 }
