@@ -16,8 +16,15 @@
             <ColumnDefinition Width="20"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="2" Grid.Row="1" Text="Это программа для решения судоку!" Margin="10,0,0,0"/>
-        <Button Grid.Column="2" Grid.Row="2" Content="Решить судоку!" Click="Button_Click" Margin="10,0,0,0"/>
-        <Grid Name="grid2" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
+        <Button Grid.Column="2" Grid.Row="2" Content="Решить судоку!" Click="Button_Click" Margin="10,0,0,0">
+            <Button.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Открыть файл" Click="MenuItem_Click" /> 
+                    <MenuItem Header="Сохранить файл" Click="MenuItem_Click_1" />
+                </ContextMenu>
+            </Button.ContextMenu>
+         </Button>
+         <Grid Name="grid2" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="2"/>
                 <RowDefinition Height="*"/>
