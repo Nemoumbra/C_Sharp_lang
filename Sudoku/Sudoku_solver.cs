@@ -8,19 +8,19 @@ namespace Sudoku
     class Square 
     {
         public int x, y, data;
-        public SortedSet<int> possible;
+        public HashSet<int> possible;
         public Square(int x, int y) 
         {
             this.x = x;
             this.y = y;
             data = 0;
-            possible = new SortedSet<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //Временно, вроде бы
+            //possible = new HashSet<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //Временно, вроде бы
         }
     }
     class Sudoku_solver
     {
         private List<List<Square>> sudoku_matrix;
-        private SortedSet<int> basic_set;
+        private HashSet<int> basic_set;
         public Sudoku_solver() 
         {
             sudoku_matrix = new List<List<Square>>();
@@ -32,7 +32,7 @@ namespace Sudoku
                     sudoku_matrix[i].Add(new Square(i, j));
                 }
             }
-            basic_set = new SortedSet<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            basic_set = new HashSet<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         }
         /*public int get_square(int i, int j) 
         {
@@ -46,13 +46,22 @@ namespace Sudoku
             }
             set 
             {
-                sudoku_matrix[i][j].data = value;
+                if (value == 0)
+                {
+                    sudoku_matrix[i][j].data = 0;
+                    sudoku_matrix[i][j].possible = new HashSet<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+                }
+                else 
+                {
+                    sudoku_matrix[i][j].data = value;
+                    sudoku_matrix[i][j].possible = new HashSet<int>();
+                }
             }
         }
         
-        public SortedSet<Square> get_zeros_row(int n) 
+        public HashSet<Square> get_zeros_row(int n) 
         {
-            SortedSet<Square> res = new SortedSet<Square>();
+            HashSet<Square> res = new HashSet<Square>();
             for (int i = 0; i < 9; i++) 
             {
                 if (sudoku_matrix[n][i].data == 0) 
@@ -62,9 +71,9 @@ namespace Sudoku
             }
             return res;
         }
-        public SortedSet<Square> get_zeros_column(int n)
+        public HashSet<Square> get_zeros_column(int n)
         {
-            SortedSet<Square> res = new SortedSet<Square>();
+            HashSet<Square> res = new HashSet<Square>();
             for (int i = 0; i < 9; i++)
             {
                 if (sudoku_matrix[i][n].data == 0)
@@ -74,9 +83,9 @@ namespace Sudoku
             }
             return res;
         }
-        public SortedSet<Square> get_zeros_square(int n)
+        public HashSet<Square> get_zeros_square(int n)
         {
-            SortedSet<Square> res = new SortedSet<Square>();
+            HashSet<Square> res = new HashSet<Square>();
             int a = n / 3, b = n % 3;
             for (int i = 3*a; i < 3*a+3; i++)
             {
@@ -124,9 +133,9 @@ namespace Sudoku
             return false;
         }
 
-        public SortedSet<int> present_in_row(int n)
+        public HashSet<int> present_in_row(int n)
         {
-            SortedSet<int> res = new SortedSet<int>();
+            HashSet<int> res = new HashSet<int>();
             for (int i = 0; i < 9; i++)
             {
                 if (sudoku_matrix[n][i].data != 0)
@@ -136,9 +145,9 @@ namespace Sudoku
             }
             return res;
         }
-        public SortedSet<int> present_in_column(int n)
+        public HashSet<int> present_in_column(int n)
         {
-            SortedSet<int> res = new SortedSet<int>();
+            HashSet<int> res = new HashSet<int>();
             for (int i = 0; i < 9; i++)
             {
                 if (sudoku_matrix[i][n].data != 0)
@@ -148,9 +157,9 @@ namespace Sudoku
             }
             return res;
         }
-        public SortedSet<int> present_in_square(int n)
+        public HashSet<int> present_in_square(int n)
         {
-            SortedSet<int> res = new SortedSet<int>();
+            HashSet<int> res = new HashSet<int>();
             int a = n / 3, b = n % 3;
             for (int i = 3 * a; i < 3 * a + 3; i++)
             {
@@ -164,21 +173,21 @@ namespace Sudoku
             }
             return res;
         }
-        public SortedSet<int> absent_in_row(int n) 
+        public HashSet<int> absent_in_row(int n) 
         {
-            SortedSet<int> res = basic_set;
+            HashSet<int> res = basic_set;
             res.ExceptWith(present_in_row(n));
             return res;
         }
-        public SortedSet<int> absent_in_column(int n)
+        public HashSet<int> absent_in_column(int n)
         {
-            SortedSet<int> res = basic_set;
+            HashSet<int> res = basic_set;
             res.ExceptWith(present_in_column(n));
             return res;
         }
-        public SortedSet<int> absent_in_square(int n)
+        public HashSet<int> absent_in_square(int n)
         {
-            SortedSet<int> res = basic_set;
+            HashSet<int> res = basic_set;
             res.ExceptWith(present_in_square(n));
             return res;
         }
@@ -189,15 +198,15 @@ namespace Sudoku
         
         public bool is_row_finished(int n) 
         {
-            return present_in_row(n).SequenceEqual(basic_set);
+            return present_in_row(n).Count == 9;
         }
         public bool is_column_finished(int n)
         {
-            return present_in_column(n).SequenceEqual(basic_set);
+            return present_in_column(n).Count == 9;
         }
         public bool is_square_finished(int n)
         {
-            return present_in_square(n).SequenceEqual(basic_set);
+            return present_in_square(n).Count == 9;
         }
         public bool confirm_changes() 
         {
@@ -233,8 +242,8 @@ namespace Sudoku
                             changed = True
             return changed*/
             bool changed = false;
-            SortedSet<int> absent = absent_in_row(n), present = present_in_row(n);
-            SortedSet<Square> zeros = get_zeros_row(n);
+            HashSet<int> absent = absent_in_row(n), present = present_in_row(n);
+            HashSet<Square> zeros = get_zeros_row(n);
             for (int i = 0; i < 9; i++) 
             {
                 if (sudoku_matrix[n][i].data == 0) 
@@ -277,8 +286,8 @@ namespace Sudoku
                 return changed
             */
             bool changed = false;
-            SortedSet<int> absent = absent_in_column(n), present = present_in_column(n);
-            SortedSet<Square> zeros = get_zeros_column(n);
+            HashSet<int> absent = absent_in_column(n), present = present_in_column(n);
+            HashSet<Square> zeros = get_zeros_column(n);
             for (int i = 0; i < 9; i++)
             {
                 if (sudoku_matrix[i][n].data == 0)
@@ -321,8 +330,8 @@ namespace Sudoku
                 return changed
             */
             bool changed = false;
-            SortedSet<int> absent = absent_in_square(n), present = present_in_square(n);
-            SortedSet<Square> zeros = get_zeros_square(n);
+            HashSet<int> absent = absent_in_square(n), present = present_in_square(n);
+            HashSet<Square> zeros = get_zeros_square(n);
             int a = n / 3, b = n % 3;
             for (int i = 3*a; i < 3*a + 3; i++) 
             {
@@ -400,12 +409,13 @@ namespace Sudoku
         {
             return !basic_set.All(digit => count_digit_square(n, digit) <= 1);
         }
-        public bool is_contradictive()
+        public bool is_contradictive(ref string error)
         {
             for (int i = 0; i < 9; i++) 
             {
                 if (is_row_contradictive(i)) 
                 {
+                    error = "ROW_" + i.ToString();
                     return true;
                 }
             }
@@ -413,6 +423,7 @@ namespace Sudoku
             {
                 if (is_column_contradictive(i))
                 {
+                    error = "COLUMN_" + i.ToString();
                     return true;
                 }
             }
@@ -420,6 +431,7 @@ namespace Sudoku
             {
                 if (is_square_contradictive(i))
                 {
+                    error = "SQUARE_" + i.ToString();
                     return true;
                 }
             }
@@ -437,7 +449,7 @@ namespace Sudoku
                 {
                     if (!is_row_finished(i)) 
                     {
-                        flag1 = flag1 || do_row(i);
+                        flag1 = do_row(i) || flag1;
                     }
                 }
                 flag2 = flag2 || confirm_changes();
@@ -446,7 +458,7 @@ namespace Sudoku
                 {
                     if (!is_column_finished(i))
                     {
-                        flag1 = flag1 || do_column(i);
+                        flag1 = do_column(i) || flag1;
                     }
                 }
                 flag2 = flag2 || confirm_changes();
@@ -454,7 +466,7 @@ namespace Sudoku
                 {
                     if (!is_square_finished(i))
                     {
-                        flag1 = flag1 || do_square(i);
+                        flag1 = do_square(i) || flag1;
                     }
                 }
                 flag2 = flag2 || confirm_changes();
