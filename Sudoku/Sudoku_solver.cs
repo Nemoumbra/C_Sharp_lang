@@ -2,25 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace Sudoku
 {
-    class Square 
+    public class Square 
     {
-        public int x, y, data;
+        public int row_t, column_t, data;
         public HashSet<int> possible;
-        public Square(int x, int y) 
+        public bool is_set;
+        public Square(int row_t, int column_t) 
         {
-            this.x = x;
-            this.y = y;
+            this.row_t = row_t;
+            this.column_t = column_t;
             data = 0;
+            is_set = false;
             //possible = new HashSet<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //Временно, вроде бы
         }
     }
-    class Sudoku_solver
+    public class Sudoku_solver
     {
         private List<List<Square>> sudoku_matrix;
         private HashSet<int> basic_set;
+        public bool is_done = false;
+        public bool is_logging_on = false;
+        public string logging_path = "";
         public Sudoku_solver() 
         {
             sudoku_matrix = new List<List<Square>>();
@@ -58,7 +64,10 @@ namespace Sudoku
                 }
             }
         }
-        
+        public bool get_status(int i, int j) 
+        {
+            return sudoku_matrix[i][j].is_set;
+        }
         public HashSet<Square> get_zeros_row(int n) 
         {
             HashSet<Square> res = new HashSet<Square>();
@@ -175,25 +184,25 @@ namespace Sudoku
         }
         public HashSet<int> absent_in_row(int n) 
         {
-            HashSet<int> res = basic_set;
+            HashSet<int> res = new HashSet<int>(basic_set);
             res.ExceptWith(present_in_row(n));
             return res;
         }
         public HashSet<int> absent_in_column(int n)
         {
-            HashSet<int> res = basic_set;
+            HashSet<int> res = new HashSet<int>(basic_set);
             res.ExceptWith(present_in_column(n));
             return res;
         }
         public HashSet<int> absent_in_square(int n)
         {
-            HashSet<int> res = basic_set;
+            HashSet<int> res = new HashSet<int>(basic_set);
             res.ExceptWith(present_in_square(n));
             return res;
         }
         public int get_square_id(Square sqr) 
         {
-            return 3 * (sqr.y / 3) + sqr.x / 3;
+            return 3 * (sqr.row_t / 3) + sqr.column_t / 3;
         }
         
         public bool is_row_finished(int n) 
@@ -217,7 +226,17 @@ namespace Sudoku
                 {
                     if (sudoku_matrix[i][j].possible.Count == 1) 
                     {
+                        sudoku_matrix[i][j].is_set = true;
                         sudoku_matrix[i][j].data = sudoku_matrix[i][j].possible.First();
+                        if (is_logging_on)
+                        {
+                            if (File.Exists(logging_path))
+                            {
+                                StreamWriter stream = File.AppendText(logging_path);
+                                stream.Write(String.Format("Setting digit {0} on ({1}; {2})\n", sudoku_matrix[i][j].data, i, j));
+                                stream.Close();
+                            }
+                        }
                         sudoku_matrix[i][j].possible.Remove(sudoku_matrix[i][j].data);
                     }
                 }
@@ -226,84 +245,108 @@ namespace Sudoku
         }
         public bool do_row(int n) 
         {
-            /*
-            def do_row(L, n):
-            changed = False
-            absent = absent_row(field, n)
-            zero_squares = get_zeroes_row(field, n)
-            exist = get_row(L, n)
-            for i in range(9):  # В ряду нет повторений
-                L[n][i].possible.difference_update(exist)
-            for i in absent:  # Перебираем отсутствующие цифры в n-ом ряду
-                for j in zero_squares:  # Ищем в колоннах с нулями в n-ом ряду
-                    if is_in_column(field, i, j.x) or is_in_square(field, i, get_square_id(j)):
-                        if i in field[n][j.x].possible:  # Отмечаем, что в клетке [n][j.x] не может быть цифры i
-                            field[n][j.x].possible.discard(i)
-                            changed = True
-            return changed*/
             bool changed = false;
+            int temp = 0; // Для хранения кол-ва элементов во мн-ве
             HashSet<int> absent = absent_in_row(n), present = present_in_row(n);
             HashSet<Square> zeros = get_zeros_row(n);
             for (int i = 0; i < 9; i++) 
             {
                 if (sudoku_matrix[n][i].data == 0) 
                 {
+                    temp = sudoku_matrix[n][i].possible.Count;
                     sudoku_matrix[n][i].possible.ExceptWith(present);
-                    changed = true;
+                    if (temp != sudoku_matrix[n][i].possible.Count) 
+                    {
+                        changed = true;
+                    }
                 } 
             }
             foreach (int digit in absent) 
             {
                 foreach (Square s in zeros) 
                 {
-                    if (sudoku_matrix[n][s.x].possible.Contains(digit) /*Почему цифру можно убрать*/ && (is_in_column(digit, s.x) || is_in_square(digit, get_square_id(s))) /*Почему цифру нужно убрать*/) 
+                    
+                    if (s.possible.Contains(digit) /*Почему цифру можно убрать*/ && (is_in_column(digit, s.column_t) || is_in_square(digit, get_square_id(s))) /*Почему цифру нужно убрать*/) 
                     {
-                        sudoku_matrix[n][s.x].possible.Remove(digit);
+                        s.possible.Remove(digit);
                         changed = true;
                     }
-                    /*У меня есть идея: если во всех пустых клетках, кроме одной,
-                     не может быть какой-то отсутствующей цифры, то эту цифру нужно 
-                     выставить в данную клетку (например, подкорректировать ей possible)*/
+                }
+            }
+            int counter = 0;
+            foreach (int digit in absent) 
+            {
+                counter = 0;
+                foreach (Square s in zeros) 
+                {
+                    if (!s.possible.Contains(digit))
+                    {
+                        counter++;
+                    }
+                }
+                if (counter == zeros.Count - 1)
+                {
+                    foreach (Square s in zeros) 
+                    {
+                        if (s.possible.Contains(digit)) 
+                        {
+                            s.possible = new HashSet<int>() { digit };
+                            changed = true;
+                        }
+                    }
                 }
             }
             return changed;
         }
         public bool do_column(int n)
         {
-            /*def do_column(L, n):
-                changed = False
-                absent = absent_column(field, n)
-                zero_squares = get_zeroes_column(field, n)
-                exist = get_column(L, n)
-                for i in range(9):  # В столбце нет повторений
-                    L[i][n].possible.difference_update(exist)
-                for i in absent:  # Перебираем отсутствующие цифры в n-ой колонне
-                    for j in zero_squares:  # Ищем в строках с нулями в n-ой колонне
-                        if is_in_row(field, i, j.y) or is_in_square(field, i, get_square_id(j)):
-                            if i in field[j.y][n].possible:  # Отмечаем, что в клетке [j.y][n] не может быть цифры i
-                                field[j.y][n].possible.discard(i)
-                                changed = True
-                return changed
-            */
             bool changed = false;
+            int temp = 0; // Для хранения кол-ва элементов во мн-ве
             HashSet<int> absent = absent_in_column(n), present = present_in_column(n);
             HashSet<Square> zeros = get_zeros_column(n);
             for (int i = 0; i < 9; i++)
             {
                 if (sudoku_matrix[i][n].data == 0)
                 {
+                    temp = sudoku_matrix[i][n].possible.Count;
                     sudoku_matrix[i][n].possible.ExceptWith(present);
-                    changed = true;
+                    if (temp != sudoku_matrix[i][n].possible.Count)
+                    {
+                        changed = true;
+                    }
                 }
             }
             foreach (int digit in absent)
             {
                 foreach (Square s in zeros)
                 {
-                    if (sudoku_matrix[s.y][n].possible.Contains(digit) /*Почему цифру можно убрать*/ && (is_in_column(digit, s.x) || is_in_square(digit, get_square_id(s))) /*Почему цифру нужно убрать*/)
+                    if (s.possible.Contains(digit) /*Почему цифру можно убрать*/ && (is_in_column(digit, s.column_t) || is_in_square(digit, get_square_id(s))) /*Почему цифру нужно убрать*/)
                     {
-                        sudoku_matrix[s.y][n].possible.Remove(digit);
+                        s.possible.Remove(digit);
                         changed = true;
+                    }
+                }
+            }
+            int counter = 0;
+            foreach (int digit in absent)
+            {
+                counter = 0;
+                foreach (Square s in zeros)
+                {
+                    if (!s.possible.Contains(digit))
+                    {
+                        counter++;
+                    }
+                }
+                if (counter == zeros.Count - 1)
+                {
+                    foreach (Square s in zeros)
+                    {
+                        if (s.possible.Contains(digit))
+                        {
+                            s.possible = new HashSet<int>() { digit };
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -311,25 +354,8 @@ namespace Sudoku
         }
         public bool do_square(int n)
         {
-            /*def do_square(L, n):
-                changed = False
-                absent = absent_square(L, n)
-                zero_squares = get_zeroes_square(L, n)
-                exist = get_square(L, n)
-                a = n // 3
-                b = n % 3  # В квадрате нет повторений
-                for i in range(3 * a, 3 * a + 3):
-                    for j in range(3 * b, 3 * b + 3):
-                        L[i][j].possible.difference_update(exist)
-                for i in absent:  # Перебираем отсутствующие цифры в n-ом квадрате
-                    for j in zero_squares:  # Ищем в строках и столбцах
-                        if is_in_row(field, i, j.y) or is_in_column(field, i, j.x):
-                            if i in field[j.y][j.x].possible:
-                                field[j.y][j.x].possible.discard(i)
-                                changed = True
-                return changed
-            */
             bool changed = false;
+            int temp = 0; // Для хранения кол-ва элементов во мн-ве
             HashSet<int> absent = absent_in_square(n), present = present_in_square(n);
             HashSet<Square> zeros = get_zeros_square(n);
             int a = n / 3, b = n % 3;
@@ -339,8 +365,12 @@ namespace Sudoku
                 {
                     if (sudoku_matrix[i][j].data == 0) 
                     {
+                        temp = sudoku_matrix[i][j].possible.Count;
                         sudoku_matrix[i][j].possible.ExceptWith(present);
-                        changed = true;
+                        if (temp != sudoku_matrix[i][j].possible.Count) 
+                        {
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -348,10 +378,33 @@ namespace Sudoku
             {
                 foreach (Square s in zeros) 
                 {
-                    if (sudoku_matrix[s.y][s.x].possible.Contains(digit) /*Почему цифру можно убрать*/ && (is_in_row(digit, s.y) || is_in_column(digit, s.x)) /*Почему цифру нужно убрать*/) 
+                    if (s.possible.Contains(digit) /*Почему цифру можно убрать*/ && (is_in_row(digit, s.row_t) || is_in_column(digit, s.column_t)) /*Почему цифру нужно убрать*/) 
                     {
-                        sudoku_matrix[s.y][s.x].possible.Remove(digit);
+                        s.possible.Remove(digit);
                         changed = true;
+                    }
+                }
+            }
+            int counter = 0;
+            foreach (int digit in absent)
+            {
+                counter = 0;
+                foreach (Square s in zeros)
+                {
+                    if (!s.possible.Contains(digit))
+                    {
+                        counter++;
+                    }
+                }
+                if (counter == zeros.Count - 1)
+                {
+                    foreach (Square s in zeros)
+                    {
+                        if (s.possible.Contains(digit))
+                        {
+                            s.possible = new HashSet<int>() { digit };
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -452,7 +505,7 @@ namespace Sudoku
                         flag1 = do_row(i) || flag1;
                     }
                 }
-                flag2 = flag2 || confirm_changes();
+                flag2 = confirm_changes() || flag2;
 
                 for (int i = 0; i < 9; i++)
                 {
@@ -461,7 +514,7 @@ namespace Sudoku
                         flag1 = do_column(i) || flag1;
                     }
                 }
-                flag2 = flag2 || confirm_changes();
+                flag2 = confirm_changes() || flag2;
                 for (int i = 0; i < 9; i++)
                 {
                     if (!is_square_finished(i))
@@ -469,8 +522,9 @@ namespace Sudoku
                         flag1 = do_square(i) || flag1;
                     }
                 }
-                flag2 = flag2 || confirm_changes();
+                flag2 = confirm_changes() || flag2;
             }
+            is_done = true;
         }
     }   
 }
