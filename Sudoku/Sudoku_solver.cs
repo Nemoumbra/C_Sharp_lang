@@ -68,6 +68,10 @@ namespace Sudoku
         {
             return sudoku_matrix[i][j].is_set;
         }
+        public void set_status(int i, int j, bool status) 
+        {
+            sudoku_matrix[i][j].is_set = status;
+        }
         public HashSet<Square> get_zeros_row(int n) 
         {
             HashSet<Square> res = new HashSet<Square>();
@@ -232,9 +236,17 @@ namespace Sudoku
                         {
                             if (File.Exists(logging_path))
                             {
-                                StreamWriter stream = File.AppendText(logging_path);
-                                stream.Write(String.Format("Setting digit {0} on ({1}; {2})\n", sudoku_matrix[i][j].data, i, j));
-                                stream.Close();
+                                try
+                                {
+                                    StreamWriter stream = File.AppendText(logging_path);
+                                    stream.WriteLine(String.Format("Setting digit {0} on ({1}; {2})", sudoku_matrix[i][j].data, i, j));
+                                    stream.Close();
+                                }
+                                catch (Exception exept) 
+                                {
+                                    Console.WriteLine("Error in Sudoku_solver core: working with file stream threw the following error:");
+                                    Console.WriteLine(exept.Message);
+                                }
                             }
                         }
                         sudoku_matrix[i][j].possible.Remove(sudoku_matrix[i][j].data);
@@ -492,6 +504,34 @@ namespace Sudoku
         }
         public void solve_sudoku() 
         {
+            if (is_logging_on) 
+            {
+                if (File.Exists(logging_path)) 
+                {
+                    try
+                    {
+                        StreamWriter stream = File.AppendText(logging_path);
+                        stream.WriteLine("Sudoku successfully loaded");
+                        string temp;
+                        for (int i = 0; i < 9; i++) 
+                        {
+                            temp = "";
+                            for (int j = 0; j < 9; j++) 
+                            {
+                                temp += sudoku_matrix[i][j].data;
+                            }
+                            stream.WriteLine(temp);
+                        }
+                        stream.WriteLine("Solving started");
+                        stream.Close();
+                    }
+                    catch (Exception exept)
+                    {
+                        Console.WriteLine("Error in Sudoku_solver core: working with file stream threw the following error:");
+                        Console.WriteLine(exept.Message);
+                    }
+                }
+            }
             bool flag1 = true, flag2 = true;
             while (flag1 || flag2) 
             {
