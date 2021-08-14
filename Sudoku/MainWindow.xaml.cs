@@ -26,12 +26,67 @@ namespace Sudoku
         public TextBox[,] squares;
         public Key[] digit_keys, arrows;
         public Brush bruh;
-        public bool auto_move_cursor = true;
+        public bool auto_move_cursor, move_to_the_next_row, is_logging_on, mark_set_tiles;
+        public string logging_path;
         public string error_code = "", current_error = "";
+        public void make_settings_file() 
+        {
+            try
+            {
+                StreamWriter stream = File.CreateText("settings.txt");
+                stream.WriteLine("SETTINGS");
+                stream.WriteLine("\"mark_set_tiles\"=True");
+                stream.WriteLine("\"is_logging_on\"=False");
+                stream.WriteLine(String.Format("\"logging_path\"=\"{0}\"", Environment.CurrentDirectory + "\\logging.txt"));
+                stream.WriteLine("\"move_to_the_next_row\"=True");
+                stream.WriteLine("\"auto_move_cursor\"=True");
+                stream.Close();
+                mark_set_tiles = true;
+                is_logging_on = false;
+                logging_path = Environment.CurrentDirectory + "\\logging.txt";
+                move_to_the_next_row = true;
+                auto_move_cursor = true;
+            }
+            catch (Exception exept) 
+            {
+                MessageBox.Show("Error! " + exept.Message);
+            }
+        }
+        public void read_settings_from_file() 
+        {
+            try
+            {
+                StreamReader stream = File.OpenText("settings.txt");
+                string[] data = stream.ReadToEnd().Replace("\r", "").Split('\n');
+                stream.Close();
+                if (data.Length == 7) 
+                {
+                    mark_set_tiles = Convert.ToBoolean(data[1].Split('=')[1]);
+                    is_logging_on = Convert.ToBoolean(data[2].Split('=')[1]);
+                    logging_path = data[3].Split('=')[1].Replace("\"", "");
+                    move_to_the_next_row = Convert.ToBoolean(data[4].Split('=')[1]);
+                    auto_move_cursor = Convert.ToBoolean(data[5].Split('=')[1]);
+                }
+            }
+            catch (Exception exept) 
+            {
+                MessageBox.Show("Error! " + exept.Message);
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
+            if (!File.Exists("settings.txt"))
+            {
+                make_settings_file();
+            }
+            else 
+            {
+                read_settings_from_file();
+            }
             bruh = textbox_00.BorderBrush;
+            //KeyBinding fffuuuu1 = new KeyBinding(ApplicationCommands.NotACommand, new KeyGesture(Key.O, ModifierKeys.Control)); 
+            //KeyBinding fffuuuu2 = new KeyBinding(ApplicationCommands.NotACommand, new KeyGesture(Key.S, ModifierKeys.Control));
             digit_keys = new Key[9] {Key.D1, Key.D2, Key.D3, Key.D4, Key.D5, Key.D6, Key.D7, Key.D8, Key.D9};
             arrows = new Key[4] { Key.Left, Key.Up, Key.Right, Key.Down };
             squares = new TextBox[9, 9];
@@ -49,6 +104,8 @@ namespace Sudoku
                         squares[i, j].GotFocus += TextBox_GotFocus;
                         squares[i, j].LostFocus += TextBox_LostFocus;
                         squares[i, j].CaretBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+                        //squares[i, j].InputBindings.Remove(fffuuuu1);
+                        //squares[i, j].InputBindings.Remove(fffuuuu2);
                         /*try
                         {
                             squares[i, j] = (textbox as TextBox);
@@ -61,8 +118,8 @@ namespace Sudoku
                 }
             }
             core = new Sudoku_solver();
-            //core.is_logging_on = true;
-            //core.logging_path = @"c:\Users\new\Documents\Visual Studio 2010\Projects\Sudoku\Sudoku\bin\Debug\log.txt";
+            core.is_logging_on = is_logging_on;
+            core.logging_path = logging_path;
         }
         public void show_error_in_row(int n) 
         {
@@ -179,6 +236,11 @@ namespace Sudoku
                                 squares[i, j].Text = table[i][j].ToString();
                                 core[i, j] = Convert.ToInt32(table[i][j].ToString());
                             }
+                            if (core.get_status(i, j)) 
+                            {
+                                squares[i, j].Background = new SolidColorBrush(Colors.White);
+                            }
+                            core.set_status(i, j, false);
                         }
                     }
                     hide_current_error();
@@ -268,9 +330,12 @@ namespace Sudoku
             {
                 for (int j = 0; j < 9; j++) 
                 {
-                    if (core.get_status(i, j)) 
+                    if (mark_set_tiles)
                     {
-                        squares[i, j].Background = new SolidColorBrush(Colors.LightGreen);
+                        if (core.get_status(i, j))
+                        {
+                            squares[i, j].Background = new SolidColorBrush(Colors.LightGreen);
+                        }
                     }
                     if (core[i, j] == 0)
                     {
@@ -341,6 +406,18 @@ namespace Sudoku
 
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.O && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))) 
+            {
+                e.Handled = true;
+                MenuItem_Click(this, e);
+                return;
+            }
+            if (e.Key == Key.S && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                e.Handled = true;
+                MenuItem_Click_1(this, e);
+                return;
+            }
             int i = Convert.ToInt32((sender as TextBox).Name[8].ToString());
             int j = Convert.ToInt32((sender as TextBox).Name[9].ToString());
             if (arrows.Contains(e.Key))
@@ -377,7 +454,7 @@ namespace Sudoku
                 {
                     Keyboard.Focus(squares[i, j + 1]);
                 }
-                if (e.Key == Key.Right && j == 8 && i != 8) 
+                if (move_to_the_next_row && e.Key == Key.Right && j == 8 && i != 8) 
                 {
                     Keyboard.Focus(squares[i + 1, 0]);
                 }
@@ -398,7 +475,7 @@ namespace Sudoku
                         }
                         else
                         {
-                            if (i != 8)
+                            if (move_to_the_next_row && i != 8)
                             {
                                 Keyboard.Focus(squares[i + 1, 0]);
                             }
@@ -532,5 +609,3 @@ namespace Sudoku
         }
     }
 }
-}
-
