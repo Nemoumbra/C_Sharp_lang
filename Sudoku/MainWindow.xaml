@@ -2,6 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Sudoku" Height="350" Width="525">
+    <Window.CommandBindings>
+        <CommandBinding Command="Open" Executed="MenuItem_Click"/>
+        <CommandBinding Command="Save" Executed="MenuItem_Click_1"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Command="Open" Gesture="CTRL+O"/>
+        <KeyBinding Command="Save" Gesture="CTRL+S"/>
+    </Window.InputBindings>
     <Grid Name="grid1" AllowDrop="True" Drop="grid1_Drop" DragEnter="grid1_DragEnter">
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
