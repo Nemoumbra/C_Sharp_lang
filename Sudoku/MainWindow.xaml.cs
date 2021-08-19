@@ -26,8 +26,9 @@ namespace Sudoku
         public TextBox[,] squares;
         public Key[] digit_keys, arrows;
         public Brush bruh;
-        public bool auto_move_cursor, move_to_the_next_row, is_logging_on, mark_set_tiles;
-        public string logging_path;
+        public Settings settings;
+        //public bool auto_move_cursor, move_to_the_next_row, is_logging_on, mark_set_tiles;
+        //public string logging_path;
         public string error_code = "", current_error = "";
         public void make_settings_file() 
         {
@@ -40,12 +41,14 @@ namespace Sudoku
                 stream.WriteLine(String.Format("\"logging_path\"=\"{0}\"", Environment.CurrentDirectory + "\\logging.txt"));
                 stream.WriteLine("\"move_to_the_next_row\"=True");
                 stream.WriteLine("\"auto_move_cursor\"=True");
+                stream.WriteLine("\"step_by_step\"=False");
                 stream.Close();
-                mark_set_tiles = true;
-                is_logging_on = false;
-                logging_path = Environment.CurrentDirectory + "\\logging.txt";
-                move_to_the_next_row = true;
-                auto_move_cursor = true;
+                settings.mark_set_tiles = true;
+                settings.is_logging_on = false;
+                settings.logging_path = Environment.CurrentDirectory + "\\logging.txt";
+                settings.move_to_the_next_row = true;
+                settings.auto_move_cursor = true;
+                settings.step_by_step = false;
             }
             catch (Exception exept) 
             {
@@ -61,11 +64,12 @@ namespace Sudoku
                 stream.Close();
                 if (data.Length == 7) 
                 {
-                    mark_set_tiles = Convert.ToBoolean(data[1].Split('=')[1]);
-                    is_logging_on = Convert.ToBoolean(data[2].Split('=')[1]);
-                    logging_path = data[3].Split('=')[1].Replace("\"", "");
-                    move_to_the_next_row = Convert.ToBoolean(data[4].Split('=')[1]);
-                    auto_move_cursor = Convert.ToBoolean(data[5].Split('=')[1]);
+                    settings.mark_set_tiles = Convert.ToBoolean(data[1].Split('=')[1]);
+                    settings.is_logging_on = Convert.ToBoolean(data[2].Split('=')[1]);
+                    settings.logging_path = data[3].Split('=')[1].Replace("\"", "");
+                    settings.move_to_the_next_row = Convert.ToBoolean(data[4].Split('=')[1]);
+                    settings.auto_move_cursor = Convert.ToBoolean(data[5].Split('=')[1]);
+                    settings.step_by_step = Convert.ToBoolean(data[6].Split('=')[1]);
                 }
             }
             catch (Exception exept) 
@@ -76,6 +80,7 @@ namespace Sudoku
         public MainWindow()
         {
             InitializeComponent();
+            settings = new Settings();
             if (!File.Exists("settings.txt"))
             {
                 make_settings_file();
@@ -104,22 +109,10 @@ namespace Sudoku
                         squares[i, j].GotFocus += TextBox_GotFocus;
                         squares[i, j].LostFocus += TextBox_LostFocus;
                         squares[i, j].CaretBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
-                        //squares[i, j].InputBindings.Remove(fffuuuu1);
-                        //squares[i, j].InputBindings.Remove(fffuuuu2);
-                        /*try
-                        {
-                            squares[i, j] = (textbox as TextBox);
-                        }
-                        catch (Exception exept) 
-                        {
-                            MessageBox.Show("Error:" + exept.Message);
-                        }*/
                     }
                 }
             }
-            core = new Sudoku_solver();
-            core.is_logging_on = is_logging_on;
-            core.logging_path = logging_path;
+            core = new Sudoku_solver(settings);
         }
         public void show_error_in_row(int n) 
         {
@@ -207,9 +200,188 @@ namespace Sudoku
                     }
             }
         }
+        public void show_error_by_code(string code) 
+        {
+            string[] words = code.Split('_');
+            switch (words[0])
+            {
+                case "ROW":
+                    {
+                        show_error_in_row(Convert.ToInt32(words[1]));
+                        break;
+                    }
+                case "COLUMN":
+                    {
+                        show_error_in_column(Convert.ToInt32(words[1]));
+                        break;
+                    }
+                case "SQUARE":
+                    {
+                        show_error_in_square(Convert.ToInt32(words[1]));
+                        break;
+                    }
+            }
+        }
         public void update_errors() 
         {
-
+            /*
+             * Когда может быть вызван update_errors?
+             * Когда происходит проверка судоку при нажатии кнопки,
+             * когда происходит нажатие клавиши Backspace и
+             * когда происходит нажатие одной из клавиш цифр.
+             * При этом есть три варианта:
+             * 1) ошибки не было, но она появилась;
+             * 2) ошибка была, но пропала, и теперь их нет;
+             * 3) ошибка была, пропала, но есть ещё.
+             * В момент нажатия кнопки гарантируется, что не важно,
+             * есть ли на данный момент ошибка
+             */
+            /*
+             * Код кнопки:
+             * int index = 0;
+               index = Convert.ToInt32(error_code.Split('_')[1]);
+               error_code = error_code.Split('_')[0];
+               switch (error_code)
+               {
+                   case "ROW": 
+                       {
+                           show_error_in_row(index);
+                           break;
+                       }
+                   case "COLUMN":
+                       {
+                           show_error_in_column(index);
+                           break;
+                       }
+                   case "SQUARE":
+                       {
+                           show_error_in_square(index);
+                           break;
+                       }
+               }
+             */
+            //В общем, если нет ошибки, решаем, иначе показываем
+            /*
+             * 
+             * Код при нажатии Backspace (есть ошибка), часть 1:
+             * if (!current_error.Equals("") && !current_error.Equals(error_code))
+               {
+                   hide_current_error();
+               }
+             */
+            //Ошибку нужно спрятать, если 1) она была и 2) теперь либо их нет, либо она другая
+            /*
+             * Код при нажатии Backspace (есть ошибка), часть 2:
+             * string[] words = error_code.Split('_');
+               switch (words[0])
+               {
+                   case "ROW":
+                       {
+                           show_error_in_row(Convert.ToInt32(words[1]));
+                           break;
+                       }
+                   case "COLUMN":
+                       {
+                           show_error_in_column(Convert.ToInt32(words[1]));
+                           break;
+                       }
+                   case "SQUARE":
+                       {
+                           show_error_in_square(Convert.ToInt32(words[1]));
+                           break;                        
+                       }
+                }
+             */
+            //Backspace может только убрать ошибку, но могли остаться ещё. Необходимо показать новую.
+            /*
+             * Код при нажатии Backspace (нет ошибки):
+             * if (!current_error.Equals(""))
+               {
+                   string[] words = current_error.Split('_');
+                   switch (words[0])
+                   {
+                       case "ROW":
+                           {
+                               hide_error_in_row(i);
+                               break;
+                           }
+                       case "COLUMN":
+                           {
+                               hide_error_in_column(j);
+                               break;
+                           }
+                       case "SQUARE":
+                           {
+                               hide_error_in_square(3 * (i / 3) + j / 3);
+                               break;
+                           }
+                   }
+               }
+             */
+            //Теперь ошибки нет, значит, ошибку нужно спрятать
+            /*
+             * Код при нажатии на клавишу с цифрой:
+             * if (core.is_contradictive(ref error_code))
+               {
+                   if (!current_error.Equals("") && !current_error.Equals(error_code)) 
+                   {
+                       hide_current_error();
+                   }
+                   string[] words = error_code.Split('_');
+                   switch (words[0])
+                   {
+                       case "ROW":
+                           {
+                               if (i == Convert.ToInt32(words[1])) 
+                               {
+                                   show_error_in_row(i);
+                               }
+                               break;
+                           }
+                       case "COLUMN":
+                           {
+                               if (j == Convert.ToInt32(words[1]))
+                               {
+                                   show_error_in_column(j);
+                               }
+                               break;
+                           }
+                       case "SQUARE":
+                           {
+                               if (3 * (i / 3) + j / 3 == Convert.ToInt32(words[1]))
+                               {
+                                   show_error_in_square(3 * (i / 3) + j / 3);
+                               }
+                               break;
+                           }
+                   }
+               }
+               else 
+               {
+                   hide_current_error();
+               }
+             */
+            //
+            if (error_code.Equals(""))
+            {
+                hide_current_error();
+            }
+            else 
+            {
+                if (current_error.Equals(""))
+                {
+                    show_error_by_code(error_code);
+                }
+                else 
+                {
+                    if (!current_error.Equals(error_code))
+                    {
+                        hide_current_error();
+                        show_error_by_code(error_code);
+                    }
+                    //иначе ничего не делать
+                }
+            }
             return;
         }
         public void accept_file(string filename) 
@@ -293,44 +465,45 @@ namespace Sudoku
                     }
                 }
             }
-            error_code = "";
-            if (core.is_contradictive(ref error_code)) 
+            //error_code = "";
+            //if (core.is_contradictive(ref error_code)) 
+            //{
+            //    //int index = 0;
+            //    //index = Convert.ToInt32(error_code.Split('_')[1]);
+            //    //error_code = error_code.Split('_')[0];
+            //    //switch (error_code)
+            //    //{
+            //    //    case "ROW": 
+            //    //        {
+            //    //            show_error_in_row(index);
+            //    //            break;
+            //    //        }
+            //    //    case "COLUMN":
+            //    //        {
+            //    //            show_error_in_column(index);
+            //    //            break;
+            //    //        }
+            //    //    case "SQUARE":
+            //    //        {
+            //    //            show_error_in_square(index);
+            //    //            break;
+            //    //        }
+            //    //}
+            //    update_errors();
+            //    return;
+            //}
+            error_code = core.is_contradictive2();
+            if (!error_code.Equals(""))
             {
-                int index = 0;
-                //MessageBox.Show("Conradictive: " + error_code);
-                index = Convert.ToInt32(error_code.Split('_')[1]);
-                error_code = error_code.Split('_')[0];
-                switch (error_code)
-                {
-                    case "ROW": 
-                        {
-                            show_error_in_row(index);
-                            //current_error = "ROW";
-                            break;
-                        }
-                    case "COLUMN":
-                        {
-                            show_error_in_column(index);
-                            //current_error = "COLUMN";
-                            break;
-                        }
-                    case "SQUARE":
-                        {
-                            show_error_in_square(index);
-                            //current_error = "SQUARE";
-                            break;
-                        }
-                }
-                
-                //current_error = error_code + "_" +index.ToString();
+                update_errors();
                 return;
             }
             core.solve_sudoku();
-            for (int i = 0; i < 9; i++) 
+            for (int i = 0; i < 9; i++)
             {
-                for (int j = 0; j < 9; j++) 
+                for (int j = 0; j < 9; j++)
                 {
-                    if (mark_set_tiles)
+                    if (settings.mark_set_tiles)
                     {
                         if (core.get_status(i, j))
                         {
@@ -347,8 +520,6 @@ namespace Sudoku
                     }
                 }
             }
-            //MessageBox.Show(core.is_column_finished(2).ToString());
-            return;
         }
 
         private void grid1_Drop(object sender, DragEventArgs e)
@@ -396,12 +567,23 @@ namespace Sudoku
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
+            int i = Convert.ToInt32((sender as TextBox).Name[8].ToString());
+            int j = Convert.ToInt32((sender as TextBox).Name[9].ToString());
             (sender as TextBox).Background = new SolidColorBrush(Colors.Beige);
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            (sender as TextBox).Background = new SolidColorBrush(Colors.White);
+            int i = Convert.ToInt32((sender as TextBox).Name[8].ToString());
+            int j = Convert.ToInt32((sender as TextBox).Name[9].ToString());
+            if (core.get_status(i, j))
+            {
+                (sender as TextBox).Background = new SolidColorBrush(Colors.LightGreen);
+            }
+            else
+            {
+                (sender as TextBox).Background = new SolidColorBrush(Colors.White);
+            }
         }
 
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -422,22 +604,6 @@ namespace Sudoku
             int j = Convert.ToInt32((sender as TextBox).Name[9].ToString());
             if (arrows.Contains(e.Key))
             {
-                /*if (e.Key == Key.Down && i != 8) 
-                {
-                    Keyboard.Focus(squares[i + 1, j]);
-                }
-                if (e.Key == Key.Up && i != 0) 
-                {
-                    Keyboard.Focus(squares[i - 1, j]);
-                }
-                if (e.Key == Key.Left && j != 0) 
-                {
-                    Keyboard.Focus(squares[i, j-1]);
-                }
-                if (e.Key == Key.Right && j != 8) 
-                {
-                    Keyboard.Focus(squares[i, j+1]);
-                }*/
                 if (e.Key == Key.Down && i != 8)
                 {
                     Keyboard.Focus(squares[i + 1, j]);
@@ -454,7 +620,7 @@ namespace Sudoku
                 {
                     Keyboard.Focus(squares[i, j + 1]);
                 }
-                if (move_to_the_next_row && e.Key == Key.Right && j == 8 && i != 8) 
+                if (settings.move_to_the_next_row && e.Key == Key.Right && j == 8 && i != 8) 
                 {
                     Keyboard.Focus(squares[i + 1, 0]);
                 }
@@ -465,9 +631,8 @@ namespace Sudoku
                 {
                     squares[i, j].Text = e.Key.ToString().Remove(0, 1);
                     core[i, j] = Convert.ToInt32(squares[i, j].Text);
-                    //(sender as TextBox).Text = e.Key.ToString().Remove(0, 1); 
                     e.Handled = true;
-                    if (auto_move_cursor)
+                    if (settings.auto_move_cursor)
                     {
                         if (j != 8)
                         {
@@ -475,53 +640,54 @@ namespace Sudoku
                         }
                         else
                         {
-                            if (move_to_the_next_row && i != 8)
+                            if (settings.move_to_the_next_row && i != 8)
                             {
                                 Keyboard.Focus(squares[i + 1, 0]);
                             }
                         }
                     }
                     
-                    if (core.is_contradictive(ref error_code))
-                    {
-                        if (!current_error.Equals("") && !current_error.Equals(error_code)) 
-                        {
-                            hide_current_error();
-                        }
-                        string[] words = error_code.Split('_');
-                        switch (words[0])
-                        {
-                            case "ROW":
-                                {
-                                    if (i == Convert.ToInt32(words[1])) 
-                                    {
-                                        show_error_in_row(i);
-                                    }
-                                    break;
-                                }
-                            case "COLUMN":
-                                {
-                                    if (j == Convert.ToInt32(words[1]))
-                                    {
-                                        show_error_in_column(j);
-                                    }
-                                    break;
-                                }
-                            case "SQUARE":
-                                {
-                                    if (3 * (i / 3) + j / 3 == Convert.ToInt32(words[1]))
-                                    {
-                                        show_error_in_square(3 * (i / 3) + j / 3);
-                                    }
-                                    break;
-                                }
-                        }
-                    }
-                    else 
-                    {
-                        hide_current_error();
-                    }
-                    
+                    //if (core.is_contradictive(ref error_code))
+                    //{
+                    //    if (!current_error.Equals("") && !current_error.Equals(error_code)) 
+                    //    {
+                    //        hide_current_error();
+                    //    }
+                    //    string[] words = error_code.Split('_');
+                    //    switch (words[0])
+                    //    {
+                    //        case "ROW":
+                    //            {
+                    //                if (i == Convert.ToInt32(words[1])) 
+                    //                {
+                    //                    show_error_in_row(i);
+                    //                }
+                    //                break;
+                    //            }
+                    //        case "COLUMN":
+                    //            {
+                    //                if (j == Convert.ToInt32(words[1]))
+                    //                {
+                    //                    show_error_in_column(j);
+                    //                }
+                    //                break;
+                    //            }
+                    //        case "SQUARE":
+                    //            {
+                    //                if (3 * (i / 3) + j / 3 == Convert.ToInt32(words[1]))
+                    //                {
+                    //                    show_error_in_square(3 * (i / 3) + j / 3);
+                    //                }
+                    //                break;
+                    //            }
+                    //    }
+                    //}
+                    //else 
+                    //{
+                    //    hide_current_error();
+                    //}
+                    error_code = core.is_contradictive2();
+                    update_errors();
                 }
                 else 
                 {
@@ -529,57 +695,40 @@ namespace Sudoku
                     {
                         squares[i, j].Text = "";
                         core[i, j] = 0;
-                        if (core.is_contradictive(ref error_code))
-                        {
-                            if (!current_error.Equals("") && !current_error.Equals(error_code))
-                            {
-                                hide_current_error();
-                            }
-                            string[] words = error_code.Split('_');
-                            switch (words[0])
-                            {
-                                case "ROW":
-                                    {
-                                        show_error_in_row(Convert.ToInt32(words[1]));
-                                        break;
-                                    }
-                                case "COLUMN":
-                                    {
-                                        show_error_in_column(Convert.ToInt32(words[1]));
-                                        break;
-                                    }
-                                case "SQUARE":
-                                    {
-                                        show_error_in_square(Convert.ToInt32(words[1]));
-                                        break;
-                                    }
-                            }
-                        }
-                        else
-                        {
-                            if (!current_error.Equals(""))
-                            {
-                                string[] words = current_error.Split('_');
-                                switch (words[0])
-                                {
-                                    case "ROW":
-                                        {
-                                            hide_error_in_row(i);
-                                            break;
-                                        }
-                                    case "COLUMN":
-                                        {
-                                            hide_error_in_column(j);
-                                            break;
-                                        }
-                                    case "SQUARE":
-                                        {
-                                            hide_error_in_square(3 * (i / 3) + j / 3);
-                                            break;
-                                        }
-                                }
-                            }
-                        }
+                        //if (core.is_contradictive(ref error_code))
+                        //{
+                            
+                        //    if (!current_error.Equals("") && !current_error.Equals(error_code))
+                        //    {
+                        //        hide_current_error();
+                        //    }
+                        //    /*string[] words = error_code.Split('_');
+                        //    switch (words[0])
+                        //    {
+                        //        case "ROW":
+                        //            {
+                        //                show_error_in_row(Convert.ToInt32(words[1]));
+                        //                break;
+                        //            }
+                        //        case "COLUMN":
+                        //            {
+                        //                show_error_in_column(Convert.ToInt32(words[1]));
+                        //                break;
+                        //            }
+                        //        case "SQUARE":
+                        //            {
+                        //                show_error_in_square(Convert.ToInt32(words[1]));
+                        //                break;
+                        //            }
+                        //    }*/
+                        //    show_error_by_code(error_code);
+                        //}
+                        //else
+                        //{
+                        //    hide_current_error();
+                        //}
+                        error_code = core.is_contradictive2();
+                        update_errors();
                     }
                     e.Handled = true;
                 }
