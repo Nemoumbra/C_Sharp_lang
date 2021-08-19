@@ -6,6 +6,21 @@ using System.IO;
 
 namespace Sudoku
 {
+    public class Settings 
+    {
+        public bool auto_move_cursor, move_to_the_next_row, is_logging_on, mark_set_tiles;
+        public bool step_by_step;
+        public string logging_path;
+        public Settings() 
+        {
+            auto_move_cursor = true;
+            move_to_the_next_row = true;
+            is_logging_on = false;
+            mark_set_tiles = true;
+            logging_path = "";
+            step_by_step = false;
+        }
+    }
     public class Square 
     {
         public int row_t, column_t, data;
@@ -25,10 +40,10 @@ namespace Sudoku
         private List<List<Square>> sudoku_matrix;
         private HashSet<int> basic_set;
         public bool is_done = false;
-        public bool is_logging_on = false;
-        public string logging_path = "";
-        public Sudoku_solver() 
+        public Settings settings;
+        public Sudoku_solver(Settings s) 
         {
+            settings = s;
             sudoku_matrix = new List<List<Square>>();
             for (int i = 0; i < 9; i++) 
             {
@@ -228,17 +243,21 @@ namespace Sudoku
             {
                 for (int j = 0; j < 9; j++) 
                 {
+                    if (sudoku_matrix[i][j].possible.Count == 0) 
+                    {
+                        //CONTRADICTION!
+                    }
                     if (sudoku_matrix[i][j].possible.Count == 1) 
                     {
                         sudoku_matrix[i][j].is_set = true;
                         sudoku_matrix[i][j].data = sudoku_matrix[i][j].possible.First();
-                        if (is_logging_on)
+                        if (settings.is_logging_on)
                         {
-                            if (File.Exists(logging_path))
+                            if (File.Exists(settings.logging_path))
                             {
                                 try
                                 {
-                                    StreamWriter stream = File.AppendText(logging_path);
+                                    StreamWriter stream = File.AppendText(settings.logging_path);
                                     stream.WriteLine(String.Format("Setting digit {0} on ({1}; {2})", sudoku_matrix[i][j].data, i, j));
                                     stream.Close();
                                 }
@@ -250,6 +269,10 @@ namespace Sudoku
                             }
                         }
                         sudoku_matrix[i][j].possible.Remove(sudoku_matrix[i][j].data);
+                        if (settings.step_by_step) 
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -502,15 +525,40 @@ namespace Sudoku
             }
             return false;
         }
+        public string is_contradictive2() 
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                if (is_row_contradictive(i))
+                {
+                    return "ROW_" + i.ToString();
+                }
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                if (is_column_contradictive(i))
+                {
+                    return "COLUMN_" + i.ToString();
+                }
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                if (is_square_contradictive(i))
+                {
+                    return "SQUARE_" + i.ToString();
+                }
+            }
+            return "";
+        }
         public void solve_sudoku() 
         {
-            if (is_logging_on) 
+            if (settings.is_logging_on) 
             {
-                if (File.Exists(logging_path)) 
+                if (File.Exists(settings.logging_path)) 
                 {
                     try
                     {
-                        StreamWriter stream = File.AppendText(logging_path);
+                        StreamWriter stream = File.AppendText(settings.logging_path);
                         stream.WriteLine("Sudoku successfully loaded");
                         string temp;
                         for (int i = 0; i < 9; i++) 
