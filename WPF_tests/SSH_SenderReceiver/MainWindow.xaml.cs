@@ -60,16 +60,10 @@ namespace SSH_SenderReciever
         private void send_file(string path)
         { 
             Process putty = new Process();
-            /*putty.StartInfo.FileName = @"c:\Users\Nikolaos\D\Downloads\Putty\pscp.exe";
-            putty.StartInfo.CreateNoWindow = true;
-            putty.StartInfo.ErrorDialog = true;
-            putty.StartInfo.UseShellExecute = false;
-            putty.StartInfo.Arguments = "pscp -P 50506 -pw osnova702 " + path.Replace(@"\\", @"\") + " main@remote.vdi.mipt.ru:" + InputTextbox.Text;
-            */
             putty.StartInfo.FileName = "cmd.exe";
             putty.StartInfo.CreateNoWindow = true;
             putty.StartInfo.ErrorDialog = true;
-            string args = "pscp -P 50506 -pw osnova702 " + path.Replace(@"\\", @"\") + " main@remote.vdi.mipt.ru:" + InputTextbox.Text;
+            string args = "pscp -P port -pw password " + path.Replace(@"\\", @"\") + " main@remote.vdi.mipt.ru:" + InputTextbox.Text;
             putty.StartInfo.Arguments = @"/C cd C:\Users\Nikolaos\D\Downloads\Putty & " + args.ToString() + " & pause";
             try
             {
@@ -106,7 +100,7 @@ namespace SSH_SenderReciever
             putty.StartInfo.FileName = "cmd.exe";
             putty.StartInfo.CreateNoWindow = true;
             putty.StartInfo.ErrorDialog = true;
-            string args = "pscp -P 50506 -pw osnova702 main@remote.vdi.mipt.ru:" + InputTextbox.Text + " " + path;
+            string args = "pscp -P port -pw password main@remote.vdi.mipt.ru:" + InputTextbox.Text + " " + path;
             putty.StartInfo.Arguments = @"/C cd C:\Users\Nikolaos\D\Downloads\Putty & " + args.ToString() + " & pause";
             try
             {
